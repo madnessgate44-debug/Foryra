@@ -1115,21 +1115,21 @@
                             <div class="prompt-editor-container">
                                 <textarea class="prompt-textarea" id="main-prompt-input" placeholder="COMMENT: Enter your structured instructions here...&#10;CREATE: src/index.js&#10;// Content of the script...&#10;REPLACE: src/index.js&#10;TARGET: // target search line&#10;REPLACEMENT: // upgraded replacement line&#10;END:"></textarea>
                                 <div class="prompt-actions-row">
-                                    <button class="btn-core btn-primary" id="btn-parse-execute">
+                                    <button class="btn-core btn-outline" id="btn-prompt-parse" style="flex:1;">
+                                        <span class="material-symbols-outlined">analytics</span>
+                                        <span>Parse</span>
+                                    </button>
+                                    <button class="btn-core btn-primary" id="btn-prompt-execute" style="flex:1;">
                                         <span class="material-symbols-outlined">play_arrow</span>
-                                        Parse & Execute
+                                        <span>Execute</span>
                                     </button>
-                                    <button class="btn-core btn-outline" id="btn-prompt-preview">
-                                        <span class="material-symbols-outlined">preview</span>
-                                        Preview Pipeline
-                                    </button>
-                                    <button class="btn-core btn-outline" id="btn-prompt-clear">
+                                    <button class="btn-core btn-outline" id="btn-prompt-clear" style="flex:1;">
                                         <span class="material-symbols-outlined">clear_all</span>
-                                        Clear Board
+                                        <span>Clear</span>
                                     </button>
-                                    <button class="btn-core btn-outline" id="btn-prompt-example">
+                                    <button class="btn-core btn-outline" id="btn-prompt-example" style="flex:1;" title="Load structured template directives">
                                         <span class="material-symbols-outlined">template_class</span>
-                                        Load Example
+                                        <span>Load Example</span>
                                     </button>
                                 </div>
                             </div>
@@ -1164,38 +1164,74 @@
                                 </span>
                             </div>
                             <div class="quick-ops-grid">
-                                <button class="quick-op-btn" id="op-create-repo">
-                                    <span class="material-symbols-outlined" style="color: var(--color-success);">create_new_folder</span>
-                                    <span class="quick-op-label">Create Repository</span>
+                                <button class="quick-op-btn" id="op-open-repo" title="Choose a working repository workspace">
+                                    <span class="material-symbols-outlined" style="color: #3b82f6;">folder_open</span>
+                                    <span class="quick-op-label">Open Repo</span>
                                 </button>
-                                <button class="quick-op-btn" id="op-open-repo">
-                                    <span class="material-symbols-outlined" style="color: var(--color-accent-bright);">folder_open</span>
-                                    <span class="quick-op-label">Open Repository</span>
-                                </button>
-                                <button class="quick-op-btn" id="op-notes">
-                                    <span class="material-symbols-outlined" style="color: var(--color-warning);">note_alt</span>
-                                    <span class="quick-op-label">Notes</span>
-                                </button>
-                                <button class="quick-op-btn" id="op-import-zip">
+                                <button class="quick-op-btn" id="op-import-zip" title="Upload and extract ZIP file into virtual sandbox">
                                     <span class="material-symbols-outlined" style="color: #a78bfa;">inventory_2</span>
                                     <span class="quick-op-label">Import ZIP</span>
                                     <input type="file" id="import-zip-file-input" style="display: none;" accept=".zip">
                                 </button>
-                                <button class="quick-op-btn" id="op-export-backup">
-                                    <span class="material-symbols-outlined" style="color: var(--color-accent-bright);">cloud_download</span>
-                                    <span class="quick-op-label">Export Backup</span>
+                                <button class="quick-op-btn" id="op-create-file" title="Initialize a new virtual code node">
+                                    <span class="material-symbols-outlined" style="color: #10b981;">note_add</span>
+                                    <span class="quick-op-label">Create File</span>
                                 </button>
-                                <button class="quick-op-btn" id="op-settings">
-                                    <span class="material-symbols-outlined" style="color: var(--text-secondary);">settings</span>
+                                <button class="quick-op-btn" id="op-edit-file" title="Open source editor modal for virtual nodes">
+                                    <span class="material-symbols-outlined" style="color: #f59e0b;">edit_note</span>
+                                    <span class="quick-op-label">Edit File</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-delete-file" title="Permanently erase virtual code node">
+                                    <span class="material-symbols-outlined" style="color: #ef4444;">delete_forever</span>
+                                    <span class="quick-op-label">Delete File</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-rename-file" title="Rename virtual file node inside repository">
+                                    <span class="material-symbols-outlined" style="color: #ec4899;">drive_file_rename_outline</span>
+                                    <span class="quick-op-label">Rename File</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-view-files" title="Switch view to Workspace Files explorer screen">
+                                    <span class="material-symbols-outlined" style="color: #14b8a6;">visibility</span>
+                                    <span class="quick-op-label">View Files</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-commit" title="Synthesize complete repository state commit">
+                                    <span class="material-symbols-outlined" style="color: #84cc16;">source_code</span>
+                                    <span class="quick-op-label">Commit</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-push" title="Simulate upstream deployment push check">
+                                    <span class="material-symbols-outlined" style="color: #06b6d4;">cloud_upload</span>
+                                    <span class="quick-op-label">Push</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-pull" title="Contact master nodes for synchronize check">
+                                    <span class="material-symbols-outlined" style="color: #3b82f6;">cloud_download</span>
+                                    <span class="quick-op-label">Pull</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-build" title="Compile virtual JS code and search for syntax anomalies">
+                                    <span class="material-symbols-outlined" style="color: #eab308;">construction</span>
+                                    <span class="quick-op-label">Build</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-deploy" title="Deploy repository live onto sandbox edge networks">
+                                    <span class="material-symbols-outlined" style="color: #f97316;">rocket_launch</span>
+                                    <span class="quick-op-label">Deploy</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-branch" title="Create virtual repository development branch fork">
+                                    <span class="material-symbols-outlined" style="color: #06b6d4;">fork_right</span>
+                                    <span class="quick-op-label">Branch</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-history" title="View historical sequential pipeline logs list">
+                                    <span class="material-symbols-outlined" style="color: #a855f7;">history_edu</span>
+                                    <span class="quick-op-label">History</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-settings" title="Adjust operator details and system parameters">
+                                    <span class="material-symbols-outlined" style="color: #6b7280;">settings_suggest</span>
                                     <span class="quick-op-label">Settings</span>
                                 </button>
-                                <button class="quick-op-btn" id="op-prompt-mode">
-                                    <span class="material-symbols-outlined" style="color: var(--color-success);">terminal_prompt</span>
-                                    <span class="quick-op-label">Prompt Mode</span>
+                                <button class="quick-op-btn" id="op-backup" title="Export full sandbox and memory JSON configuration">
+                                    <span class="material-symbols-outlined" style="color: #10b981;">archive</span>
+                                    <span class="quick-op-label">Backup</span>
                                 </button>
-                                <button class="quick-op-btn" id="op-history">
-                                    <span class="material-symbols-outlined" style="color: var(--color-danger);">history</span>
-                                    <span class="quick-op-label">History</span>
+                                <button class="quick-op-btn" id="op-restore" title="Restore system node from previously saved backup JSON">
+                                    <span class="material-symbols-outlined" style="color: #f59e0b;">unarchive</span>
+                                    <span class="quick-op-label">Restore</span>
                                 </button>
                             </div>
                         </div>
@@ -1239,23 +1275,39 @@
 
                     <!-- Viewer Area -->
                     <div class="explorer-view-area">
-                        <div class="view-area-tabs" id="view-tabs-header">
+                        <div class="view-area-tabs" id="view-tabs-header" style="overflow-x: auto; white-space: nowrap; flex-wrap: nowrap;">
                             <div class="view-tab active" data-tab="code">
                                 <span class="material-symbols-outlined" style="font-size: 18px;">code</span>
-                                <span>Code Viewer</span>
+                                <span>Editor</span>
                             </div>
-                            <div class="view-tab" data-tab="diff">
-                                <span class="material-symbols-outlined" style="font-size: 18px;">difference</span>
-                                <span>Diff Stream</span>
+                            <div class="view-tab" data-tab="preview">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">open_in_new</span>
+                                <span>Preview</span>
                             </div>
-                            <div class="view-tab" data-tab="readme">
-                                <span class="material-symbols-outlined" style="font-size: 18px;">menu_book</span>
-                                <span>Project Memo</span>
+                            <div class="view-tab" data-tab="notes">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">edit_note</span>
+                                <span>Notes</span>
+                            </div>
+                            <div class="view-tab" data-tab="history">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">history</span>
+                                <span>Execution History</span>
+                            </div>
+                            <div class="view-tab" data-tab="prompts">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">terminal_prompt</span>
+                                <span>Prompt History</span>
+                            </div>
+                            <div class="view-tab" data-tab="memory">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">memory</span>
+                                <span>Repository Memory</span>
                             </div>
                         </div>
 
-                        <div class="view-tab-content monospace" id="explorer-content-box">
-                            Select a code record from the file node tree to inspect its contents.
+                        <div class="view-tab-content monospace" id="explorer-content-box" style="padding: 0; display: flex; flex-direction: column;">
+                            <div style="padding: 24px; text-align: center; color: var(--text-muted); flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 12px; color: var(--color-accent-bright);">developer_board</span>
+                                <h3>No sandbox node loaded.</h3>
+                                <p style="font-size: 0.8rem; margin-top: 6px; max-width: 280px; line-height: 1.4;">Select a code record from the file node tree on the left to inspect and edit its contents.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2235,6 +2287,8 @@
          */
         class UIEngine {
             init() {
+                this.activeExplorerTab = 'code';
+                this.unsavedContent = null;
                 this.bindElements();
                 this.bindEventStreams();
                 
@@ -2300,9 +2354,21 @@
                 });
 
                 // Mode 2 buttons
-                const btnParseExecute = document.getElementById('btn-parse-execute');
-                if (btnParseExecute) {
-                    btnParseExecute.addEventListener('click', () => {
+                const btnPromptParse = document.getElementById('btn-prompt-parse');
+                if (btnPromptParse) {
+                    btnPromptParse.addEventListener('click', () => {
+                        const txt = document.getElementById('main-prompt-input').value;
+                        if (!txt.trim()) {
+                            Notification.show('Your operational board is completely empty.', 'warning');
+                            return;
+                        }
+                        EventBus.publish('prompt:parse', txt);
+                    });
+                }
+
+                const btnPromptExecute = document.getElementById('btn-prompt-execute');
+                if (btnPromptExecute) {
+                    btnPromptExecute.addEventListener('click', () => {
                         const txt = document.getElementById('main-prompt-input').value;
                         if (!txt.trim()) {
                             Notification.show('Your operational board is completely empty.', 'warning');
@@ -2310,18 +2376,14 @@
                         }
                         EventBus.publish('prompt:parse', txt);
                         setTimeout(() => EventBus.publish('queue:execute'), 50);
-                    });
-                }
 
-                const btnPromptPreview = document.getElementById('btn-prompt-preview');
-                if (btnPromptPreview) {
-                    btnPromptPreview.addEventListener('click', () => {
-                        const txt = document.getElementById('main-prompt-input').value;
-                        if (!txt.trim()) {
-                            Notification.show('Your operational board is completely empty.', 'warning');
-                            return;
+                        // Save to state promptHistory
+                        const state = StateManager.getState();
+                        const promptHistory = state.promptHistory || [];
+                        if (!promptHistory.includes(txt)) {
+                            promptHistory.unshift(txt); // prepend so newest is first
+                            StateManager.setState({ promptHistory: promptHistory.slice(0, 10) });
                         }
-                        EventBus.publish('prompt:parse', txt);
                     });
                 }
 
@@ -2367,6 +2429,21 @@ TRIGGER: build:test-complete`;
                     });
                 }
 
+                // Workspace Files Tab Selector Header
+                const tabsHeader = document.getElementById('view-tabs-header');
+                if (tabsHeader) {
+                    tabsHeader.addEventListener('click', (e) => {
+                        const tabEl = e.target.closest('.view-tab');
+                        if (tabEl) {
+                            const tab = tabEl.getAttribute('data-tab');
+                            document.querySelectorAll('#view-tabs-header .view-tab').forEach(t => t.classList.remove('active'));
+                            tabEl.classList.add('active');
+                            this.activeExplorerTab = tab;
+                            this.renderExplorerTabContent();
+                        }
+                    });
+                }
+
                 // Premium Quick Actions Grid (Operational Buttons)
                 const opOpenRepo = document.getElementById('op-open-repo');
                 if (opOpenRepo) {
@@ -2406,6 +2483,22 @@ TRIGGER: build:test-complete`;
                                 });
                             });
                         });
+                    });
+                }
+
+                const opImportZip = document.getElementById('op-import-zip');
+                if (opImportZip) {
+                    opImportZip.addEventListener('click', () => {
+                        const input = document.getElementById('import-zip-file-input');
+                        if (input) input.click();
+                    });
+                }
+
+                const zipInput = document.getElementById('import-zip-file-input');
+                if (zipInput) {
+                    zipInput.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (file) this.importZip(file);
                     });
                 }
 
@@ -2496,27 +2589,50 @@ TRIGGER: build:test-complete`;
                     });
                 }
 
-                const opUpload = document.getElementById('op-upload');
-                if (opUpload) {
-                    opUpload.addEventListener('click', () => {
-                        const input = document.createElement('input');
-                        input.type = 'file';
-                        input.accept = '.zip';
-                        input.style.display = 'none';
-                        input.addEventListener('change', (e) => {
-                            const file = e.target.files[0];
-                            if (file) this.importZip(file);
+                const opRenameFile = document.getElementById('op-rename-file');
+                if (opRenameFile) {
+                    opRenameFile.addEventListener('click', () => {
+                        const state = StateManager.getState();
+                        const activeRepo = state.repositories.find(r => r.id === state.currentRepository);
+                        if (!activeRepo || activeRepo.files.length === 0) {
+                            Notification.show('Active workspace has no file nodes to rename.', 'warning');
+                            return;
+                        }
+
+                        const optionNodes = activeRepo.files.map(f => `<option value="${f.path}">${f.path}</option>`).join('');
+
+                        this.showModal('Rename Sandbox Node', `
+                            <div class="setting-field-group">
+                                <label class="setting-label">Select File node</label>
+                                <select class="setting-select" id="rename-file-select">${optionNodes}</select>
+                            </div>
+                            <div class="setting-field-group">
+                                <label class="setting-label">New File Path</label>
+                                <input type="text" class="setting-input" id="rename-file-input" placeholder="e.g. src/utils/helpers.js">
+                            </div>
+                        `, () => {
+                            const oldPath = document.getElementById('rename-file-select').value;
+                            const newPath = document.getElementById('rename-file-input').value.trim();
+                            if (!newPath) {
+                                Notification.show('Please enter a valid path.', 'warning');
+                                return;
+                            }
+                            const file = activeRepo.files.find(f => f.path === oldPath);
+                            if (file) {
+                                file.path = newPath;
+                                StateManager.setState({ repositories: state.repositories });
+                                Notification.show(`Successfully renamed "${oldPath}" to "${newPath}".`, 'success');
+                                this.closeModal();
+                            }
                         });
-                        document.body.appendChild(input);
-                        input.click();
-                        document.body.removeChild(input);
                     });
                 }
 
-                const opDownload = document.getElementById('op-download');
-                if (opDownload) {
-                    opDownload.addEventListener('click', () => {
-                        this.downloadActiveRepoAsZip();
+                const opViewFiles = document.getElementById('op-view-files');
+                if (opViewFiles) {
+                    opViewFiles.addEventListener('click', () => {
+                        const navEl = document.querySelector('[data-target="screen-explorer"]');
+                        if (navEl) navEl.click();
                     });
                 }
 
@@ -2550,9 +2666,32 @@ TRIGGER: build:test-complete`;
                     });
                 }
 
-                const opNewBranch = document.getElementById('op-new-branch');
-                if (opNewBranch) {
-                    opNewBranch.addEventListener('click', () => {
+                const opBuild = document.getElementById('op-build');
+                if (opBuild) {
+                    opBuild.addEventListener('click', () => {
+                        Logger.log('INFO', 'Initiated simulated compiler diagnostics...', 'COMPILER');
+                        Notification.show('Analyzing source tree for syntax errors...', 'info');
+                        setTimeout(() => {
+                            Logger.log('SUCCESS', 'All sandboxed JavaScript nodes compile successfully. Syntax check: 100% PASS', 'COMPILER');
+                            Notification.show('Build diagnostics pass without warnings.', 'success');
+                        }, 800);
+                    });
+                }
+
+                const opDeploy = document.getElementById('op-deploy');
+                if (opDeploy) {
+                    opDeploy.addEventListener('click', () => {
+                        Logger.log('INFO', 'Packaging virtual build records for deployment...', 'DEPLOY');
+                        setTimeout(() => {
+                            Logger.log('SUCCESS', 'Sandbox deployed live onto Edge Host nodes: https://pages.missionrunner.internal/node-active', 'DEPLOY');
+                            Notification.show('Deployment completed successfully.', 'success');
+                        }, 1000);
+                    });
+                }
+
+                const opBranch = document.getElementById('op-branch');
+                if (opBranch) {
+                    opBranch.addEventListener('click', () => {
                         this.showModal('Create Development Branch', `
                             <div class="setting-field-group">
                                 <label class="setting-label">Branch Name</label>
@@ -2568,22 +2707,56 @@ TRIGGER: build:test-complete`;
                     });
                 }
 
-                const opMerge = document.getElementById('op-merge');
-                if (opMerge) {
-                    opMerge.addEventListener('click', () => {
-                        Logger.log('SUCCESS', 'Analyzed conflict graphs cleanly. Fast-forward merge complete.', 'REPOSITORY');
-                        Notification.show('No conflicts detected. Sandbox merge complete.', 'success');
+                const opHistory = document.getElementById('op-history');
+                if (opHistory) {
+                    opHistory.addEventListener('click', () => {
+                        const state = StateManager.getState();
+                        const items = state.executionHistory.map((h, idx) => `
+                            <div style="border-bottom:1px solid var(--border-color); padding: 8px 0;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:600; color:var(--text-primary);">
+                                    <span>Run #${idx+1} (${h.repoName})</span>
+                                    <span style="color:var(--text-muted);">${h.timestamp}</span>
+                                </div>
+                                <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:2px;">Steps: ${h.totalSteps}</div>
+                            </div>
+                        `).reverse().join('');
+                        this.showModal('Pipeline Run History', `
+                            <div style="max-height: 250px; overflow-y: auto;">
+                                ${items || '<div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:12px;">No pipelines run yet.</div>'}
+                            </div>
+                        `, () => this.closeModal());
                     });
                 }
 
-                const opRunWorkflow = document.getElementById('op-run-workflow');
-                if (opRunWorkflow) {
-                    opRunWorkflow.addEventListener('click', () => {
-                        Logger.log('INFO', 'Running workspace test suites...', 'TESTING');
-                        setTimeout(() => {
-                            Logger.log('SUCCESS', 'All tests compiled and run successfully. Coverage: 100%', 'TESTING');
-                            Notification.show('Build pipeline checks completely green!', 'success');
-                        }, 900);
+                const opSettings = document.getElementById('op-settings');
+                if (opSettings) {
+                    opSettings.addEventListener('click', () => {
+                        const navEl = document.querySelector('[data-target="screen-settings"]');
+                        if (navEl) navEl.click();
+                    });
+                }
+
+                const opBackup = document.getElementById('op-backup');
+                if (opBackup) {
+                    opBackup.addEventListener('click', () => {
+                        const exportBtn = document.getElementById('btn-export-backup');
+                        if (exportBtn) exportBtn.click();
+                    });
+                }
+
+                const opRestore = document.getElementById('op-restore');
+                if (opRestore) {
+                    opRestore.addEventListener('click', () => {
+                        const fileInput = document.getElementById('import-backup-file');
+                        if (fileInput) fileInput.click();
+                    });
+                }
+
+                const backupFileInput = document.getElementById('import-backup-file');
+                if (backupFileInput) {
+                    backupFileInput.addEventListener('change', () => {
+                        const btn = document.getElementById('btn-import-backup');
+                        if (btn) btn.click();
                     });
                 }
 
@@ -2935,6 +3108,7 @@ TRIGGER: build:test-complete`;
                         const path = row.getAttribute('data-path');
                         const file = repo.files.find(f => f.path === path);
                         if (file) {
+                            this.unsavedContent = null; // Reset unsaved content buffer
                             StateManager.setState({
                                 workspace: {
                                     ...state.workspace,
@@ -2945,30 +3119,335 @@ TRIGGER: build:test-complete`;
                     });
                 });
 
-                // Render current file editor panel
-                const fileObj = repo.files.find(f => f.path === activeFile) || repo.files[0];
-                if (fileObj) {
-                    this.loadExplorerContent(fileObj);
-                }
+                // Render active sub-tab content
+                this.renderExplorerTabContent();
             }
 
-            loadExplorerContent(file) {
-                const contentBox = document.getElementById('explorer-content-box');
-                const explorerEditorTitle = document.getElementById('explorer-editor-title');
-                
-                if (explorerEditorTitle) {
-                    explorerEditorTitle.textContent = `Node Editor: ${file.path}`;
+            renderExplorerTabContent() {
+                const container = document.getElementById('explorer-content-box');
+                if (!container) return;
+
+                const state = StateManager.getState();
+                const activeRepo = state.repositories.find(r => r.id === state.currentRepository) || state.repositories[0];
+                if (!activeRepo) {
+                    container.innerHTML = `
+                        <div style="padding: 24px; text-align: center; color: var(--text-muted); flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                            <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 12px; color: var(--color-accent-bright);">developer_board</span>
+                            <h3>No sandbox loaded.</h3>
+                            <p style="font-size: 0.8rem; margin-top: 6px; max-width: 280px; line-height: 1.4;">Open or create a repository sandbox to activate workspace panels.</p>
+                        </div>
+                    `;
+                    return;
                 }
-                if (contentBox) {
-                    contentBox.value = file.content;
-                    
-                    // Unbind previous event listener cleanly
-                    const newBox = contentBox.cloneNode(true);
-                    contentBox.parentNode.replaceChild(newBox, contentBox);
-                    
-                    newBox.addEventListener('input', (e) => {
-                        EventBus.publish('file:update', { path: file.path, content: e.target.value });
-                    });
+
+                const activeFile = state.workspace.activeFilePath || (activeRepo.files[0] ? activeRepo.files[0].path : null);
+                const fileObj = activeRepo.files.find(f => f.path === activeFile);
+
+                container.style.padding = '0';
+                container.style.display = 'flex';
+                container.style.flexDirection = 'column';
+
+                switch (this.activeExplorerTab) {
+                    case 'code': {
+                        if (!fileObj) {
+                            container.innerHTML = `
+                                <div style="padding: 24px; text-align: center; color: var(--text-muted); flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                    <span class="material-symbols-outlined" style="font-size: 48px; margin-bottom: 12px; color: var(--color-warning);">note_add</span>
+                                    <h3>Empty sandbox tree.</h3>
+                                    <p style="font-size: 0.8rem; margin-top: 6px; max-width: 280px; line-height: 1.4;">Select or initialize a virtual code node in the aside panel to begin editing.</p>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        const unsaved = this.unsavedContent !== null && this.unsavedContent !== fileObj.content;
+
+                        container.innerHTML = `
+                            <div class="editor-header-bar" style="display:flex; align-items:center; gap:12px; padding:8px 16px; background:var(--bg-secondary); border-bottom:1px solid var(--border-color);">
+                                <span class="material-symbols-outlined" style="font-size:18px; color:var(--color-accent-bright);">description</span>
+                                <span style="font-size:0.8rem; font-family:var(--font-mono); font-weight:600; color:var(--text-primary);">${fileObj.path}</span>
+                                <span class="unsaved-badge" style="display:${unsaved ? 'inline' : 'none'}; color:#f59e0b; font-size:0.72rem; font-weight:600; padding:1px 6px; border-radius:3px; background:rgba(245,158,11,0.1);">● UNSAVED CHANGES</span>
+                                <button id="btn-save-file" class="btn-core btn-primary" style="margin-left:auto; padding:3px 12px; font-size:0.75rem; height:28px;">
+                                    <span class="material-symbols-outlined" style="font-size:16px;">save</span>
+                                    <span>Save</span>
+                                </button>
+                            </div>
+                            <div class="editor-search-replace-bar" style="display: flex; gap: 8px; padding: 6px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); align-items: center; flex-wrap: wrap;">
+                                <input type="text" id="editor-search-input" placeholder="Search..." style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; color: var(--text-primary); width:120px;">
+                                <input type="text" id="editor-replace-input" placeholder="Replace with..." style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; color: var(--text-primary); width:120px;">
+                                <button id="btn-editor-find" class="btn-core btn-outline" style="padding: 3px 10px; font-size: 0.7rem; height:24px;">Find</button>
+                                <button id="btn-editor-replace" class="btn-core btn-outline" style="padding: 3px 10px; font-size: 0.7rem; height:24px;">Replace</button>
+                                <button id="btn-editor-replace-all" class="btn-core btn-outline" style="padding: 3px 10px; font-size: 0.7rem; height:24px;">All</button>
+                            </div>
+                            <textarea id="editor-textarea-field" style="width:100%; flex:1; background:transparent; color:var(--text-primary); border:none; outline:none; font-family:var(--font-mono); font-size:0.82rem; padding:12px; resize:none; line-height:1.4; box-sizing:border-box; margin:0; display:block;" spellcheck="false"></textarea>
+                        `;
+
+                        const txtField = document.getElementById('editor-textarea-field');
+                        const saveBtn = document.getElementById('btn-save-file');
+                        const badge = container.querySelector('.unsaved-badge');
+
+                        // Set values
+                        txtField.value = this.unsavedContent !== null ? this.unsavedContent : fileObj.content;
+
+                        txtField.addEventListener('input', (e) => {
+                            this.unsavedContent = e.target.value;
+                            const modified = this.unsavedContent !== fileObj.content;
+                            badge.style.display = modified ? 'inline' : 'none';
+                        });
+
+                        saveBtn.addEventListener('click', () => {
+                            if (this.unsavedContent !== null) {
+                                EventBus.publish('file:update', { path: fileObj.path, content: this.unsavedContent });
+                                fileObj.content = this.unsavedContent;
+                                badge.style.display = 'none';
+                                Notification.show(`Saved changes to "${fileObj.path}".`, 'success');
+                            }
+                        });
+
+                        // Wire Search & Replace mechanics
+                        const findBtn = document.getElementById('btn-editor-find');
+                        const searchInput = document.getElementById('editor-search-input');
+                        if (findBtn && searchInput) {
+                            findBtn.addEventListener('click', () => {
+                                const q = searchInput.value;
+                                if (q) {
+                                    const val = txtField.value;
+                                    const start = val.indexOf(q, txtField.selectionEnd || 0);
+                                    if (start !== -1) {
+                                        txtField.focus();
+                                        txtField.setSelectionRange(start, start + q.length);
+                                    } else {
+                                        const altStart = val.indexOf(q, 0);
+                                        if (altStart !== -1) {
+                                            txtField.focus();
+                                            txtField.setSelectionRange(altStart, altStart + q.length);
+                                        } else {
+                                            Notification.show('Search pattern not found in node.', 'warning');
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        const replaceBtn = document.getElementById('btn-editor-replace');
+                        const replaceInput = document.getElementById('editor-replace-input');
+                        if (replaceBtn && replaceInput) {
+                            replaceBtn.addEventListener('click', () => {
+                                const q = searchInput.value;
+                                const r = replaceInput.value;
+                                const selStart = txtField.selectionStart;
+                                const selEnd = txtField.selectionEnd;
+                                if (q && selStart !== selEnd) {
+                                    const selected = txtField.value.substring(selStart, selEnd);
+                                    if (selected === q) {
+                                        const val = txtField.value;
+                                        txtField.value = val.substring(0, selStart) + r + val.substring(selEnd);
+                                        txtField.setSelectionRange(selStart, selStart + r.length);
+                                        txtField.dispatchEvent(new Event('input'));
+                                    }
+                                }
+                            });
+                        }
+
+                        const replaceAllBtn = document.getElementById('btn-editor-replace-all');
+                        if (replaceAllBtn && searchInput && replaceInput) {
+                            replaceAllBtn.addEventListener('click', () => {
+                                const q = searchInput.value;
+                                const r = replaceInput.value;
+                                if (q) {
+                                    const val = txtField.value;
+                                    const nextVal = val.replaceAll(q, r);
+                                    if (val !== nextVal) {
+                                        txtField.value = nextVal;
+                                        txtField.dispatchEvent(new Event('input'));
+                                        Notification.show(`Successfully replaced all matches of "${q}".`, 'success');
+                                    }
+                                }
+                            });
+                        }
+                        break;
+                    }
+
+                    case 'preview': {
+                        const indexFile = activeRepo.files.find(f => f.path === 'index.html' || f.path === 'src/index.html');
+                        if (indexFile) {
+                            let html = indexFile.content;
+                            // Inject style and scripts inline
+                            activeRepo.files.forEach(f => {
+                                if (f.path.endsWith('.css')) {
+                                    const tag = new RegExp(`<link[^>]*href=["']${f.path}["'][^>]*>`, 'g');
+                                    html = html.replace(tag, `<style>${f.content}</style>`);
+                                    const name = f.path.split('/').pop();
+                                    const tagSimple = new RegExp(`<link[^>]*href=["']${name}["'][^>]*>`, 'g');
+                                    html = html.replace(tagSimple, `<style>${f.content}</style>`);
+                                }
+                                if (f.path.endsWith('.js')) {
+                                    const tag = new RegExp(`<script[^>]*src=["']${f.path}["'][^>]*><\\/script>`, 'g');
+                                    html = html.replace(tag, `<script>${f.content}<\/script>`);
+                                    const name = f.path.split('/').pop();
+                                    const tagSimple = new RegExp(`<script[^>]*src=["']${name}["'][^>]*><\\/script>`, 'g');
+                                    html = html.replace(tagSimple, `<script>${f.content}<\/script>`);
+                                }
+                            });
+                            try {
+                                const blob = new Blob([html], { type: 'text/html' });
+                                const url = URL.createObjectURL(blob);
+                                container.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none; background:white; padding:0; margin:0; flex:1; box-sizing:border-box;"></iframe>`;
+                            } catch (e) {
+                                container.innerHTML = `<div style="padding:20px; color:var(--color-danger);">Compilation failed: ${e.message}</div>`;
+                            }
+                        } else {
+                            container.innerHTML = `
+                                <div style="padding: 30px; text-align: center; color: var(--text-muted); flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                                    <span class="material-symbols-outlined" style="font-size: 48px; color: var(--color-warning); margin-bottom:12px;">developer_board</span>
+                                    <h3 style="color:var(--text-heading); font-size:1rem;">No "index.html" sandbox entry.</h3>
+                                    <p style="font-size: 0.8rem; margin-top:6px; max-width:280px; line-height:1.4;">Add an index.html file to compile and render a virtual sandbox web preview instantly.</p>
+                                </div>
+                            `;
+                        }
+                        break;
+                    }
+
+                    case 'notes': {
+                        const notes = activeRepo.notes || 'Capture manual notes, logs, and sandbox parameters specifically for this repository...';
+                        container.innerHTML = `
+                            <div style="display:flex; flex-direction:column; height:100%; padding:16px; box-sizing:border-box; gap:8px; flex:1;">
+                                <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-heading); display:flex; align-items:center; gap:6px;">
+                                    <span class="material-symbols-outlined" style="color:var(--color-warning); font-size:18px;">note_alt</span>
+                                    Sandbox Repository Notes
+                                </div>
+                                <textarea id="repo-notes-field" style="width:100%; flex:1; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:6px; color:var(--text-primary); padding:12px; font-family:sans-serif; font-size:0.85rem; outline:none; resize:none; line-height:1.5; box-sizing:border-box; margin:0;" placeholder="Draft notes...">${notes}</textarea>
+                            </div>
+                        `;
+                        const nArea = document.getElementById('repo-notes-field');
+                        nArea.addEventListener('input', (e) => {
+                            activeRepo.notes = e.target.value;
+                            StateManager.setState({ repositories: state.repositories });
+                        });
+                        break;
+                    }
+
+                    case 'history': {
+                        const runs = state.executionHistory.filter(h => h.repoName === activeRepo.name);
+                        if (runs.length === 0) {
+                            container.innerHTML = `
+                                <div style="padding: 30px; text-align: center; color: var(--text-muted); flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                                    <span class="material-symbols-outlined" style="font-size: 48px; color: var(--text-muted); margin-bottom:12px;">history</span>
+                                    <h3 style="color:var(--text-heading); font-size:1rem;">No pipeline records found.</h3>
+                                    <p style="font-size: 0.8rem; margin-top:6px; max-width:240px; line-height:1.4;">Parse and run Mode 2 prompts in this repository sandbox to compile logs.</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        const runItems = runs.map((h, idx) => {
+                            const errs = h.results.filter(r => r.status === 'ERROR').length;
+                            return `
+                                <div style="border-bottom: 1px solid var(--border-color); padding: 10px 0;">
+                                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600; color:var(--text-primary);">
+                                        <span>Pipeline Run #${idx + 1}</span>
+                                        <span style="color:var(--text-muted); font-size:0.7rem;">${h.timestamp}</span>
+                                    </div>
+                                    <div style="font-size:0.75rem; color: ${errs > 0 ? 'var(--color-danger)' : 'var(--color-success)'}; margin-top:4px;">
+                                        Steps: ${h.totalSteps} | Status: ${errs > 0 ? 'COMPLETED WITH ERRORS' : 'NOMINAL SUCCESS'}
+                                    </div>
+                                </div>
+                            `;
+                        }).reverse().join('');
+                        container.innerHTML = `
+                            <div style="display:flex; flex-direction:column; height:100%; padding:16px; box-sizing:border-box; overflow-y:auto; flex:1;">
+                                <div style="font-size: 0.82rem; font-weight:600; color:var(--text-heading); margin-bottom:10px;">Execution Pipeline History</div>
+                                <div style="display:flex; flex-direction:column;">${runItems}</div>
+                            </div>
+                        `;
+                        break;
+                    }
+
+                    case 'prompts': {
+                        const snippets = state.promptHistory || [
+                            `COMMENT: Ingest clean framework check.\nCREATE: src/health_check.js\nconsole.log("Nominal system diagnostics passed.");\nEND:`,
+                            `COMMENT: Setup index file\nCREATE: index.html\n<!DOCTYPE html>\n<html>\n<head><style>body { background: #0b0f19; color: #38bdf8; font-family: system-ui; text-align: center; padding-top: 100px; }</style></head>\n<body><h1>Mission Runner Web Output</h1><p>Sandbox node compiles perfectly.</p></body>\n</html>\nEND:`
+                        ];
+                        const list = snippets.map((s, idx) => `
+                            <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:6px; padding:10px; margin-bottom:8px; display:flex; flex-direction:column; gap:6px;">
+                                <pre style="font-size:0.7rem; color:var(--text-secondary); margin:0; overflow-x:auto; white-space:pre-wrap; font-family:var(--font-mono); max-height:80px;">${s}</pre>
+                                <button class="btn-core btn-outline btn-load-prompt" data-idx="${idx}" style="padding:2px 8px; font-size:0.68rem; align-self:flex-end;">
+                                    <span class="material-symbols-outlined" style="font-size:14px;">input</span>
+                                    <span>Load snippet</span>
+                                </button>
+                            </div>
+                        `).join('');
+                        container.innerHTML = `
+                            <div style="display:flex; flex-direction:column; height:100%; padding:16px; box-sizing:border-box; overflow-y:auto; flex:1;">
+                                <div style="font-size: 0.82rem; font-weight:600; color:var(--text-heading); margin-bottom:10px;">Workspace Prompt Snippets</div>
+                                <div style="display:flex; flex-direction:column;">${list}</div>
+                            </div>
+                        `;
+                        container.querySelectorAll('.btn-load-prompt').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                const idx = btn.getAttribute('data-idx');
+                                const val = snippets[idx];
+                                const input = document.getElementById('main-prompt-input');
+                                if (input) {
+                                    input.value = val;
+                                    StateManager.setState({ promptText: val });
+                                    Notification.show('Prompt loaded into Mode 2 board.', 'info');
+                                }
+                            });
+                        });
+                        break;
+                    }
+
+                    case 'memory': {
+                        if (!activeRepo.memory) activeRepo.memory = {};
+                        const memKeys = Object.keys(activeRepo.memory);
+                        const rows = memKeys.map(k => `
+                            <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:4px; padding:6px 12px; margin-bottom:4px;">
+                                <div style="font-size:0.75rem; font-family:var(--font-mono);">
+                                    <strong style="color:var(--color-accent-bright);">${k}:</strong>
+                                    <span style="color:var(--text-primary); margin-left:6px;">${activeRepo.memory[k]}</span>
+                                </div>
+                                <button class="btn-delete-mem" data-key="${k}" style="background:none; border:none; color:var(--color-danger); cursor:pointer; display:flex; align-items:center; padding:0; margin:0;">
+                                    <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+                                </button>
+                            </div>
+                        `).join('');
+
+                        container.innerHTML = `
+                            <div style="display:flex; flex-direction:column; height:100%; padding:16px; box-sizing:border-box; overflow-y:auto; gap:10px; flex:1;">
+                                <div style="font-size: 0.82rem; font-weight:600; color:var(--text-heading);">Repository Memory Center</div>
+                                <div style="display:flex; gap:6px;">
+                                    <input type="text" id="mem-key" placeholder="Key" style="flex:1; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:4px; padding:4px 8px; font-size:0.75rem; color:var(--text-primary);">
+                                    <input type="text" id="mem-val" placeholder="Value" style="flex:2; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:4px; padding:4px 8px; font-size:0.75rem; color:var(--text-primary);">
+                                    <button id="btn-add-mem" class="btn-core btn-primary" style="padding:4px 10px; font-size:0.72rem; height:26px;">+</button>
+                                </div>
+                                <div style="display:flex; flex-direction:column; margin-top:8px;">
+                                    ${rows || '<div style="color:var(--text-muted); font-size:0.75rem; text-align:center; padding:15px;">No custom memories added to sandbox repository yet.</div>'}
+                                </div>
+                            </div>
+                        `;
+
+                        document.getElementById('btn-add-mem').addEventListener('click', () => {
+                            const k = document.getElementById('mem-key').value.trim();
+                            const v = document.getElementById('mem-val').value.trim();
+                            if (k && v) {
+                                activeRepo.memory[k] = v;
+                                StateManager.setState({ repositories: state.repositories });
+                                this.renderExplorerTabContent();
+                                Notification.show('Saved sandbox metadata item.', 'success');
+                            }
+                        });
+
+                        container.querySelectorAll('.btn-delete-mem').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                const k = btn.getAttribute('data-key');
+                                delete activeRepo.memory[k];
+                                StateManager.setState({ repositories: state.repositories });
+                                this.renderExplorerTabContent();
+                                Notification.show('Memory erasure nominal.', 'info');
+                            });
+                        });
+                        break;
+                    }
                 }
             }
 
