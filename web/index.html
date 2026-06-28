@@ -1634,7 +1634,7 @@
                         openFiles: ['README.md'],
                         expandedFolders: ['src']
                     }),
-                    promptText: Storage.get('promptText', ''),
+                    promptText: Storage.get('promptText', 'COMMENT: Create README\n\nCREATE: docs/test.md\n# Hello\n\nThis file was created by Mission Runner.\n\nEND'),
                     executionHistory: Storage.get('history', []),
                     notes: Storage.get('notes', 'Draft your mission notes, workspace thoughts, or checklist items here...')
                 };
@@ -2127,7 +2127,7 @@
                             status: 'Queued'
                         });
                     }
-                    else if (trimmed === 'END:') {
+                    else if (trimmed === 'END:' || trimmed === 'END') {
                         if (currentOp) {
                             operations.push(currentOp);
                             currentOp = null;
@@ -3593,6 +3593,7 @@ TRIGGER: build:test-complete`;
 
                     case 'prompts': {
                         const snippets = state.promptHistory || [
+                            `COMMENT: Create README\n\nCREATE: docs/test.md\n# Hello\n\nThis file was created by Mission Runner.\n\nEND`,
                             `COMMENT: Ingest clean framework check.\nCREATE: src/health_check.js\nconsole.log("Nominal system diagnostics passed.");\nEND:`,
                             `COMMENT: Setup index file\nCREATE: index.html\n<!DOCTYPE html>\n<html>\n<head><style>body { background: #0b0f19; color: #38bdf8; font-family: system-ui; text-align: center; padding-top: 100px; }</style></head>\n<body><h1>Mission Runner Web Output</h1><p>Sandbox node compiles perfectly.</p></body>\n</html>\nEND:`
                         ];
