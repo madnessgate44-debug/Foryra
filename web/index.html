@@ -1502,12 +1502,7 @@
        CORE MODULES & WORKFLOW ENGINE (Modern JavaScript ES2023)
        ========================================================================== */ -->
     <script type="module">
-        
-        /**
-         * 1. EVENT BUS
-         * Publish-Subscribe messaging backbone.
-         */
-        class EventBusService {
+        class EventBus {
             constructor() {
                 this.listeners = new Map();
             }
@@ -1520,7 +1515,7 @@
             }
             publish(event, data) {
                 if (event !== 'state-changed') {
-                    Logger.log('INFO', `Event published: "${event}"`, 'EVENT_BUS');
+                    window.Logger?.log('INFO', `Event published: "${event}"`, 'EVENT_BUS');
                 }
                 if (this.listeners.has(event)) {
                     this.listeners.get(event).forEach(cb => {
@@ -1528,13 +1523,17 @@
                     });
                 }
             }
+            on(event, callback) {
+                return this.subscribe(event, callback);
+            }
+            emit(event, data) {
+                this.publish(event, data);
+            }
         }
-        const EventBus = new EventBusService();
-
-        /**
-         * 2. STORAGE UTILITIES
-         */
-        class StorageManagerService {
+        window.EventBus = new EventBus();
+    </script>
+    <script type="module">
+        class Storage {
             constructor() {
                 this.prefix = 'mr_os_';
             }
@@ -1566,13 +1565,12 @@
                 }
             }
         }
-        const Storage = new StorageManagerService();
+        window.Storage = new Storage();
+    </script>
+    <script type="module">
 
-        /**
-         * 3. SYSTEM LOGGER
-         * Structured logs inside state: timestamp, level, module, message.
-         */
-        class LoggerService {
+    <script type="module">
+        class Logger {
             constructor() {
                 this.maxLogs = 200;
             }
@@ -1580,6 +1578,12 @@
                 const timestamp = new Date().toLocaleTimeString();
                 const entry = { timestamp, level, module, message };
                 
+                const StateManager = window.StateManager;
+                const EventBus = window.EventBus;
+                if (!StateManager || !EventBus) {
+                    console.log(`[${module}] [${level}] ${message}`);
+                    return;
+                }
                 const state = StateManager.getState();
                 const updatedLogs = [...state.logs, entry].slice(-this.maxLogs);
                 
@@ -1588,26 +1592,40 @@
                 EventBus.publish('log:new', entry);
             }
             clear() {
-                StateManager.setState({ logs: [] });
+                window.StateManager?.setState({ logs: [] });
             }
         }
-        const Logger = new LoggerService();
-
-        /**
-         * 4. CENTRALIZED STATE MANAGER
-         */
-        class StateManagerService {
+        window.Logger = new Logger();
+    </script>
+    <script type="module">
+        class StateManager {
             constructor() {
+                const now = new Date().toISOString();
                 this.state = {
-                    repositories: Storage.get('repositories', [
+                    repositories: window.Storage.get('repositories', [
                         {
                             id: 'repo-sandbox',
                             name: 'Default Sandbox',
                             description: 'Local virtual development workspace',
                             files: [
-                                { path: 'README.md', content: '# Welcome to Mission Runner OS\n\nThis is a complete localized virtual software repository. Type structured instruction blocks in Mode 2 and run them to automatically update files.\n' },
-                                { path: 'src/index.js', content: 'console.log("Mission Runner Operating System Booted Successfully!");\n' },
-                                { path: 'src/utils.js', content: 'export const formatCommand = (cmd) => cmd.toUpperCase();\n' }
+                                { 
+                                    path: 'README.md', 
+                                    content: '# Welcome to Mission Runner OS\n\nThis is a complete localized virtual software repository. Type structured instruction blocks in Mode 2 and run them to automatically update files.\n',
+                                    created: now,
+                                    updated: now
+                                },
+                                { 
+                                    path: 'src/index.js', 
+                                    content: 'console.log("Mission Runner Operating System Booted Successfully!");\n',
+                                    created: now,
+                                    updated: now
+                                },
+                                { 
+                                    path: 'src/utils.js', 
+                                    content: 'export const formatCommand = (cmd) => cmd.toUpperCase();\n',
+                                    created: now,
+                                    updated: now
+                                }
                             ],
                             isFavorite: false,
                             isPinned: false,
@@ -1618,10 +1636,10 @@
                             memory: {}
                         }
                     ]),
-                    currentRepository: Storage.get('currentRepository', 'repo-sandbox'),
+                    currentRepository: window.Storage.get('currentRepository', 'repo-sandbox'),
                     executionQueue: [],
                     logs: [],
-                    settings: Storage.get('settings', {
+                    settings: window.Storage.get('settings', {
                         operatorName: 'Commander Maverick',
                         operatorRole: 'Lead Operations Architect',
                         theme: 'dark',
@@ -1629,14 +1647,14 @@
                         apiToken: '',
                         aiModel: 'gemini-1.5-flash'
                     }),
-                    workspace: Storage.get('workspace', {
+                    workspace: window.Storage.get('workspace', {
                         activeFilePath: 'README.md',
                         openFiles: ['README.md'],
                         expandedFolders: ['src']
                     }),
-                    promptText: Storage.get('promptText', 'COMMENT: Create README\n\nCREATE: docs/test.md\n# Hello\n\nThis file was created by Mission Runner.\n\nEND'),
-                    executionHistory: Storage.get('history', []),
-                    notes: Storage.get('notes', 'Draft your mission notes, workspace thoughts, or checklist items here...')
+                    promptText: window.Storage.get('promptText', 'COMMENT: Create README\n\nCREATE: docs/test.md\n# Hello\n\nThis file was created by Mission Runner.\n\nEND'),
+                    executionHistory: window.Storage.get('history', []),
+                    notes: window.Storage.get('notes', 'Draft your mission notes, workspace thoughts, or checklist items here...')
                 };
             }
 
@@ -1646,39 +1664,44 @@
 
             setState(updates) {
                 Object.assign(this.state, updates);
-                
-                if ('repositories' in updates) Storage.set('repositories', this.state.repositories);
-                if ('settings' in updates) Storage.set('settings', this.state.settings);
-                if ('workspace' in updates) Storage.set('workspace', this.state.workspace);
-                if ('promptText' in updates) Storage.set('promptText', this.state.promptText);
-                if ('executionHistory' in updates) Storage.set('history', this.state.executionHistory);
-                if ('notes' in updates) Storage.set('notes', this.state.notes);
-                if ('currentRepository' in updates) Storage.set('currentRepository', this.state.currentRepository);
+                if ('repositories' in updates) window.Storage.set('repositories', this.state.repositories);
+                if ('settings' in updates) window.Storage.set('settings', this.state.settings);
+                if ('workspace' in updates) window.Storage.set('workspace', this.state.workspace);
+                if ('promptText' in updates) window.Storage.set('promptText', this.state.promptText);
+                if ('executionHistory' in updates) window.Storage.set('history', this.state.executionHistory);
+                if ('notes' in updates) window.Storage.set('notes', this.state.notes);
+                if ('currentRepository' in updates) window.Storage.set('currentRepository', this.state.currentRepository);
 
-                EventBus.publish('state-changed', this.state);
+                window.EventBus.publish('state-changed', this.state);
             }
         }
-        const StateManager = new StateManagerService();
+        window.StateManager = new StateManager();
+    </script>
+    <script type="module">
 
-        /**
-         * 4.5 VIRTUAL FILE SYSTEM OPERATIONS
-         */
-        class VirtualFSService {
+    <script type="module">
+        class VirtualFileSystem {
             createFile(repoId, path, content) {
-                const repos = [...StateManager.getState().repositories];
+                const repos = [...window.StateManager.getState().repositories];
                 const repo = repos.find(r => r.id === repoId);
                 if (!repo) throw new Error('Repository not found.');
                 if (repo.files.some(f => f.path === path)) {
                     throw new Error(`File "${path}" already exists.`);
                 }
-                repo.files.push({ path, content });
-                StateManager.setState({ repositories: repos });
-                Logger.log('SUCCESS', `VFS: Created file "${path}"`, 'VFS');
+                const now = new Date().toISOString();
+                repo.files.push({ 
+                    path, 
+                    content,
+                    created: now,
+                    updated: now
+                });
+                window.StateManager.setState({ repositories: repos });
+                window.Logger.log('SUCCESS', `VFS: Created file "${path}"`, 'VFS');
                 return true;
             }
 
             readFile(repoId, path) {
-                const repo = StateManager.getState().repositories.find(r => r.id === repoId);
+                const repo = window.StateManager.getState().repositories.find(r => r.id === repoId);
                 if (!repo) throw new Error('Repository not found.');
                 const file = repo.files.find(f => f.path === path);
                 if (!file) throw new Error(`File "${path}" not found.`);
@@ -1686,22 +1709,29 @@
             }
 
             writeFile(repoId, path, content) {
-                const repos = [...StateManager.getState().repositories];
+                const repos = [...window.StateManager.getState().repositories];
                 const repo = repos.find(r => r.id === repoId);
                 if (!repo) throw new Error('Repository not found.');
                 let file = repo.files.find(f => f.path === path);
+                const now = new Date().toISOString();
                 if (file) {
                     file.content = content;
+                    file.updated = now;
                 } else {
-                    repo.files.push({ path, content });
+                    repo.files.push({ 
+                        path, 
+                        content,
+                        created: now,
+                        updated: now
+                    });
                 }
-                StateManager.setState({ repositories: repos });
-                Logger.log('SUCCESS', `VFS: Wrote file "${path}"`, 'VFS');
+                window.StateManager.setState({ repositories: repos });
+                window.Logger.log('SUCCESS', `VFS: Wrote file "${path}"`, 'VFS');
                 return true;
             }
 
             renameFile(repoId, oldPath, newPath) {
-                const repos = [...StateManager.getState().repositories];
+                const repos = [...window.StateManager.getState().repositories];
                 const repo = repos.find(r => r.id === repoId);
                 if (!repo) throw new Error('Repository not found.');
                 const file = repo.files.find(f => f.path === oldPath);
@@ -1709,14 +1739,16 @@
                 if (repo.files.some(f => f.path === newPath)) {
                     throw new Error(`File "${newPath}" already exists.`);
                 }
+                const now = new Date().toISOString();
                 file.path = newPath;
-                StateManager.setState({ repositories: repos });
-                Logger.log('SUCCESS', `VFS: Renamed file "${oldPath}" to "${newPath}"`, 'VFS');
+                file.updated = now;
+                window.StateManager.setState({ repositories: repos });
+                window.Logger.log('SUCCESS', `VFS: Renamed file "${oldPath}" to "${newPath}"`, 'VFS');
                 return true;
             }
 
             deleteFile(repoId, path) {
-                const repos = [...StateManager.getState().repositories];
+                const repos = [...window.StateManager.getState().repositories];
                 const repo = repos.find(r => r.id === repoId);
                 if (!repo) throw new Error('Repository not found.');
                 const initialCount = repo.files.length;
@@ -1724,13 +1756,13 @@
                 if (repo.files.length === initialCount) {
                     throw new Error(`File "${path}" not found.`);
                 }
-                StateManager.setState({ repositories: repos });
-                Logger.log('SUCCESS', `VFS: Deleted file "${path}"`, 'VFS');
+                window.StateManager.setState({ repositories: repos });
+                window.Logger.log('SUCCESS', `VFS: Deleted file "${path}"`, 'VFS');
                 return true;
             }
 
             replaceText(repoId, path, target, replacement) {
-                const repos = [...StateManager.getState().repositories];
+                const repos = [...window.StateManager.getState().repositories];
                 const repo = repos.find(r => r.id === repoId);
                 if (!repo) throw new Error('Repository not found.');
                 const file = repo.files.find(f => f.path === path);
@@ -1738,40 +1770,52 @@
                 if (!file.content.includes(target)) {
                     throw new Error(`Target text to replace not found in "${path}".`);
                 }
+                const now = new Date().toISOString();
                 file.content = file.content.replace(target, replacement);
-                StateManager.setState({ repositories: repos });
-                Logger.log('SUCCESS', `VFS: Replaced text in "${path}"`, 'VFS');
+                file.updated = now;
+                window.StateManager.setState({ repositories: repos });
+                window.Logger.log('SUCCESS', `VFS: Replaced text in "${path}"`, 'VFS');
                 return true;
             }
         }
-        const VirtualFS = new VirtualFSService();
+        window.VirtualFileSystem = new VirtualFileSystem();
+        window.VirtualFS = window.VirtualFileSystem;
+    </script>
+    <script type="module">
 
         /**
          * 5. REPOSITORY MANAGER
          */
-        class RepositoryManagerService {
+    <script type="module">
+        class RepositoryManager {
             init() {
-                EventBus.subscribe('repo:create', (data) => this.create(data));
-                EventBus.subscribe('repo:delete', (id) => this.delete(id));
-                EventBus.subscribe('repo:favorite', (id) => this.toggleFavorite(id));
-                EventBus.subscribe('repo:pin', (id) => this.togglePin(id));
-                EventBus.subscribe('repo:open', (id) => this.open(id));
+                window.EventBus.subscribe('repo:create', (data) => this.create(data));
+                window.EventBus.subscribe('repo:delete', (id) => this.delete(id));
+                window.EventBus.subscribe('repo:favorite', (id) => this.toggleFavorite(id));
+                window.EventBus.subscribe('repo:pin', (id) => this.togglePin(id));
+                window.EventBus.subscribe('repo:open', (id) => this.open(id));
                 
                 // File operations in the current active repo
-                EventBus.subscribe('file:update', (data) => this.updateFile(data));
-                EventBus.subscribe('file:create', (data) => this.createFile(data));
-                EventBus.subscribe('file:delete', (data) => this.deleteFile(data));
+                window.EventBus.subscribe('file:update', (data) => this.updateFile(data));
+                window.EventBus.subscribe('file:create', (data) => this.createFile(data));
+                window.EventBus.subscribe('file:delete', (data) => this.deleteFile(data));
             }
 
             create({ name, description }) {
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 const id = 'repo-' + Math.random().toString(36).substring(2, 9);
+                const now = new Date().toISOString();
                 const newRepo = {
                     id,
                     name: name || 'Unnamed Repository',
                     description: description || 'Local virtual workspace',
                     files: [
-                        { path: 'README.md', content: `# ${name}\n\n${description || 'Workspace initialized successfully.'}\n` }
+                        { 
+                            path: 'README.md', 
+                            content: `# ${name}\n\n${description || 'Workspace initialized successfully.'}\n`,
+                            created: now,
+                            updated: now
+                        }
                     ],
                     isFavorite: false,
                     isPinned: false,
@@ -1782,15 +1826,15 @@
                     memory: {}
                 };
                 const repositories = [...state.repositories, newRepo];
-                StateManager.setState({ repositories, currentRepository: id });
-                Logger.log('SUCCESS', `Created repository: "${newRepo.name}"`, 'REPOSITORY');
+                window.StateManager.setState({ repositories, currentRepository: id });
+                window.Logger.log('SUCCESS', `Created repository: "${newRepo.name}"`, 'REPOSITORY');
                 return id;
             }
 
             delete(id) {
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 if (state.repositories.length <= 1) {
-                    Notification.show('Cannot delete the last remaining workspace.', 'warning');
+                    window.Notification.show('Cannot delete the last remaining workspace.', 'warning');
                     return;
                 }
                 const repositories = state.repositories.filter(r => r.id !== id);
@@ -1798,59 +1842,59 @@
                 if (currentRepository === id) {
                     currentRepository = repositories[0].id;
                 }
-                StateManager.setState({ repositories, currentRepository });
-                Logger.log('WARN', `Deleted repository ID ${id}`, 'REPOSITORY');
+                window.StateManager.setState({ repositories, currentRepository });
+                window.Logger.log('WARN', `Deleted repository ID ${id}`, 'REPOSITORY');
             }
 
             toggleFavorite(id) {
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 const repositories = state.repositories.map(r => r.id === id ? { ...r, isFavorite: !r.isFavorite } : r);
-                StateManager.setState({ repositories });
+                window.StateManager.setState({ repositories });
             }
 
             togglePin(id) {
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 const repositories = state.repositories.map(r => r.id === id ? { ...r, isPinned: !r.isPinned } : r);
-                StateManager.setState({ repositories });
+                window.StateManager.setState({ repositories });
             }
 
             open(id) {
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 if (state.repositories.some(r => r.id === id)) {
-                    StateManager.setState({ currentRepository: id });
-                    Logger.log('INFO', `Opened repository ID ${id}`, 'REPOSITORY');
+                    window.StateManager.setState({ currentRepository: id });
+                    window.Logger.log('INFO', `Opened repository ID ${id}`, 'REPOSITORY');
                 }
             }
 
             updateFile({ path, content }) {
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 try {
-                    VirtualFS.writeFile(state.currentRepository, path, content);
+                    window.VirtualFS.writeFile(state.currentRepository, path, content);
                 } catch (e) {
-                    Notification.show(e.message, 'error');
+                    window.Notification.show(e.message, 'error');
                 }
             }
 
             createFile({ path }) {
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 try {
-                    VirtualFS.createFile(state.currentRepository, path, `// Virtual file: ${path}\n`);
+                    window.VirtualFS.createFile(state.currentRepository, path, `// Virtual file: ${path}\n`);
                 } catch (e) {
-                    Notification.show(e.message, 'error');
+                    window.Notification.show(e.message, 'error');
                 }
             }
 
             deleteFile({ path }) {
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 try {
-                    VirtualFS.deleteFile(state.currentRepository, path);
+                    window.VirtualFS.deleteFile(state.currentRepository, path);
                 } catch (e) {
-                    Notification.show(e.message, 'error');
+                    window.Notification.show(e.message, 'error');
                 }
             }
 
             gitStatus(repoId) {
-                const repo = StateManager.getState().repositories.find(r => r.id === repoId);
+                const repo = window.StateManager.getState().repositories.find(r => r.id === repoId);
                 if (!repo) return null;
                 return repo.files.map(f => {
                     return { path: f.path, status: 'TRACKED', size: f.content.length };
@@ -1858,7 +1902,7 @@
             }
 
             commit(repoId, message) {
-                const repos = [...StateManager.getState().repositories];
+                const repos = [...window.StateManager.getState().repositories];
                 const repo = repos.find(r => r.id === repoId);
                 if (!repo) throw new Error('Repository not found.');
                 const commitObj = {
@@ -1868,19 +1912,17 @@
                 };
                 if (!repo.commitHistory) repo.commitHistory = [];
                 repo.commitHistory.unshift(commitObj);
-                StateManager.setState({ repositories: repos });
-                Logger.log('SUCCESS', `Committed changes with hash [${commitObj.hash}]: "${commitObj.message}"`, 'REPOSITORY');
+                window.StateManager.setState({ repositories: repos });
+                window.Logger.log('SUCCESS', `Committed changes with hash [${commitObj.hash}]: "${commitObj.message}"`, 'REPOSITORY');
                 return commitObj;
             }
         }
-        const RepositoryManager = new RepositoryManagerService();
-
-        /**
-         * 6. THEME MANAGER
-         */
-        class ThemeManagerService {
+        window.RepositoryManager = new RepositoryManager();
+    </script>
+    <script type="module">
+        class ThemeManager {
             init() {
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 this.setTheme(state.settings.theme || 'dark');
             }
             setTheme(theme) {
@@ -1895,21 +1937,19 @@
                     root.classList.add('theme-light');
                 }
 
-                const settings = { ...StateManager.getState().settings, theme };
-                StateManager.setState({ settings });
-                Logger.log('INFO', `Applied system visual theme: ${theme.toUpperCase()}`, 'THEME');
+                const settings = { ...window.StateManager.getState().settings, theme };
+                window.StateManager.setState({ settings });
+                window.Logger.log('INFO', `Applied system visual theme: ${theme.toUpperCase()}`, 'THEME');
             }
             toggle() {
-                const current = StateManager.getState().settings.theme || 'dark';
+                const current = window.StateManager.getState().settings.theme || 'dark';
                 this.setTheme(current === 'dark' ? 'light' : 'dark');
             }
         }
-        const ThemeManager = new ThemeManagerService();
-
-        /**
-         * 7. FLOATING NOTIFICATIONS
-         */
-        class NotificationService {
+        window.ThemeManager = new ThemeManager();
+    </script>
+    <script type="module">
+        class Notification {
             show(message, type = 'info') {
                 const dock = document.getElementById('toast-dock');
                 if (!dock) return;
@@ -1936,11 +1976,10 @@
                 }, 4000);
             }
         }
-        const Notification = new NotificationService();        /**
-         * 8. PROMPT LANGUAGE PARSER
-         * Real, robust multiline block prompt instruction parser. Supports all 12 requested commands.
-         */
-        class PromptParserService {
+        window.Notification = new Notification();
+    </script>
+    <script type="module">
+        class PromptParser {
             parse(text) {
                 const lines = text.split('\n');
                 const operations = [];
@@ -2166,12 +2205,10 @@
                 return { operations, errors };
             }
         }
-        const PromptParser = new PromptParserService();
-
-        /**
-         * 9. SEQUENTIAL EXECUTION QUEUE
-         */
-        class ExecutionQueueService {
+        window.PromptParser = new PromptParser();
+    </script>
+    <script type="module">
+        class ExecutionEngine {
             constructor() {
                 this.running = false;
                 this.cancelRequested = false;
@@ -2181,28 +2218,28 @@
             }
 
             init() {
-                EventBus.subscribe('prompt:parse', (text) => this.handleParse(text));
-                EventBus.subscribe('queue:execute', () => this.handleExecute());
-                EventBus.subscribe('queue:cancel', () => this.handleCancel());
+                window.EventBus.subscribe('prompt:parse', (text) => this.handleParse(text));
+                window.EventBus.subscribe('queue:execute', () => this.handleExecute());
+                window.EventBus.subscribe('queue:cancel', () => this.handleCancel());
             }
 
             handleParse(text) {
-                const { operations, errors } = PromptParser.parse(text);
+                const { operations, errors } = window.PromptParser.parse(text);
                 if (errors.length > 0) {
-                    EventBus.publish('prompt:errors', errors);
-                    Notification.show(`Parsing failed with ${errors.length} errors.`, 'error');
+                    window.EventBus.publish('prompt:errors', errors);
+                    window.Notification.show(`Parsing failed with ${errors.length} errors.`, 'error');
                 } else {
                     this.activeQueue = operations;
-                    StateManager.setState({ executionQueue: operations, promptText: text });
-                    EventBus.publish('queue:loaded', operations);
-                    Notification.show(`Parsed ${operations.length} directives into queue. Ready to execute.`, 'success');
+                    window.StateManager.setState({ executionQueue: operations, promptText: text });
+                    window.EventBus.publish('queue:loaded', operations);
+                    window.Notification.show(`Parsed ${operations.length} directives into queue. Ready to execute.`, 'success');
                 }
             }
 
             handleCancel() {
                 if (this.running) {
                     this.cancelRequested = true;
-                    Logger.log('WARN', 'Execution cancellation triggered by operator.', 'PIPELINE');
+                    window.Logger.log('WARN', 'Execution cancellation triggered by operator.', 'PIPELINE');
                 }
             }
 
@@ -2217,11 +2254,11 @@
 
             async handleExecute() {
                 if (this.running) {
-                    Notification.show('Another pipeline job is already active.', 'warning');
+                    window.Notification.show('Another pipeline job is already active.', 'warning');
                     return;
                 }
                 if (this.activeQueue.length === 0) {
-                    Notification.show('No queued directives available to run. Add some prompts first.', 'warning');
+                    window.Notification.show('No queued directives available to run. Add some prompts first.', 'warning');
                     return;
                 }
 
@@ -2229,11 +2266,11 @@
                 this.cancelRequested = false;
                 this.currentIndex = 0;
 
-                const state = StateManager.getState();
+                const state = window.StateManager.getState();
                 const activeRepo = state.repositories.find(r => r.id === state.currentRepository);
                 if (!activeRepo) {
                     this.running = false;
-                    Logger.log('ERROR', 'No active virtual repository loaded.', 'PIPELINE');
+                    window.Logger.log('ERROR', 'No active virtual repository loaded.', 'PIPELINE');
                     return;
                 }
 
@@ -2245,15 +2282,15 @@
                     'OPERATOR_ROLE': state.settings.operatorRole
                 };
 
-                Logger.log('INFO', `Starting sequential run of ${this.activeQueue.length} instructions.`, 'PIPELINE');
-                EventBus.publish('queue:status', { running: true });
+                window.Logger.log('INFO', `Starting sequential run of ${this.activeQueue.length} instructions.`, 'PIPELINE');
+                window.EventBus.publish('queue:status', { running: true });
 
                 const runLog = [];
                 let anyFail = false;
 
                 for (let i = 0; i < this.activeQueue.length; i++) {
                     if (this.cancelRequested) {
-                        Logger.log('WARN', `Execution aborted by user at step ${i + 1}/${this.activeQueue.length}.`, 'PIPELINE');
+                        window.Logger.log('WARN', `Execution aborted by user at step ${i + 1}/${this.activeQueue.length}.`, 'PIPELINE');
                         this.activeQueue[i].status = 'Skipped';
                         runLog.push({ type: this.activeQueue[i].type, status: 'Skipped', message: 'Job canceled by user.' });
                         for (let j = i + 1; j < this.activeQueue.length; j++) {
@@ -2265,7 +2302,7 @@
                     this.currentIndex = i;
                     const op = this.activeQueue[i];
                     op.status = 'Running';
-                    EventBus.publish('queue:updated', this.activeQueue);
+                    window.EventBus.publish('queue:updated', this.activeQueue);
 
                     let stepSuccess = true;
                     let messageOutput = '';
@@ -2285,19 +2322,19 @@
                             }
 
                             case 'CREATE': {
-                                VirtualFS.writeFile(state.currentRepository, path, content);
+                                window.VirtualFS.writeFile(state.currentRepository, path, content);
                                 messageOutput = `Created file record: "${path}"`;
                                 break;
                             }
 
                             case 'DELETE': {
-                                VirtualFS.deleteFile(state.currentRepository, path);
+                                window.VirtualFS.deleteFile(state.currentRepository, path);
                                 messageOutput = `Deleted file record: "${path}"`;
                                 break;
                             }
 
                             case 'REPLACE': {
-                                VirtualFS.replaceText(state.currentRepository, path, target, replacement);
+                                window.VirtualFS.replaceText(state.currentRepository, path, target, replacement);
                                 messageOutput = `Replaced lines inside file: "${path}"`;
                                 break;
                             }
@@ -2305,7 +2342,9 @@
                             case 'MOVE': {
                                 const file = activeRepo.files.find(f => f.path === op.from);
                                 if (!file) throw new Error(`File "${op.from}" not found.`);
+                                const now = new Date().toISOString();
                                 file.path = op.to;
+                                file.updated = now;
                                 messageOutput = `Moved virtual node from "${op.from}" to "${op.to}"`;
                                 break;
                             }
@@ -2313,7 +2352,13 @@
                             case 'COPY': {
                                 const file = activeRepo.files.find(f => f.path === op.from);
                                 if (!file) throw new Error(`File "${op.from}" not found.`);
-                                activeRepo.files.push({ path: op.to, content: file.content });
+                                const now = new Date().toISOString();
+                                activeRepo.files.push({ 
+                                    path: op.to, 
+                                    content: file.content,
+                                    created: now,
+                                    updated: now
+                                });
                                 messageOutput = `Copied virtual node "${op.from}" to "${op.to}"`;
                                 break;
                             }
@@ -2321,7 +2366,9 @@
                             case 'RENAME': {
                                 const file = activeRepo.files.find(f => f.path === op.from);
                                 if (!file) throw new Error(`File "${op.from}" not found.`);
+                                const now = new Date().toISOString();
                                 file.path = op.to;
+                                file.updated = now;
                                 messageOutput = `Renamed virtual node from "${op.from}" to "${op.to}"`;
                                 break;
                             }
@@ -2339,7 +2386,7 @@
                             }
 
                             case 'DOWNLOAD': {
-                                const contentToDl = VirtualFS.readFile(state.currentRepository, path);
+                                const contentToDl = window.VirtualFS.readFile(state.currentRepository, path);
                                 const blob = new Blob([contentToDl], { type: 'text/plain' });
                                 const url = URL.createObjectURL(blob);
                                 const a = document.createElement('a');
@@ -2353,13 +2400,13 @@
 
                             case 'TRIGGER': {
                                 messageOutput = `Dispatched custom downstream event trigger: "${action}"`;
-                                EventBus.publish(action, op);
+                                window.EventBus.publish(action, op);
                                 break;
                             }
 
                             case 'WAIT': {
                                 messageOutput = `Paused timer for ${op.delay}ms...`;
-                                Logger.log('INFO', messageOutput, 'PIPELINE');
+                                window.Logger.log('INFO', messageOutput, 'PIPELINE');
                                 await new Promise(resolve => setTimeout(resolve, op.delay));
                                 messageOutput = `Timer finished, resumed operations automatically.`;
                                 break;
@@ -2367,12 +2414,12 @@
                         }
 
                         op.status = 'Completed';
-                        Logger.log('SUCCESS', messageOutput, 'PIPELINE');
+                        window.Logger.log('SUCCESS', messageOutput, 'PIPELINE');
                     } catch (e) {
                         stepSuccess = false;
                         op.status = 'Failed';
                         messageOutput = `Step failed: ${e.message}`;
-                        Logger.log('ERROR', messageOutput, 'PIPELINE');
+                        window.Logger.log('ERROR', messageOutput, 'PIPELINE');
                         anyFail = true;
                     }
 
@@ -2382,7 +2429,7 @@
                         message: messageOutput
                     });
 
-                    EventBus.publish('queue:updated', this.activeQueue);
+                    window.EventBus.publish('queue:updated', this.activeQueue);
                 }
 
                 this.running = false;
@@ -2396,29 +2443,201 @@
                 };
 
                 const executionHistory = [...state.executionHistory, historyItem];
-                StateManager.setState({
+                window.StateManager.setState({
                     executionHistory,
                     executionQueue: []
                 });
 
-                EventBus.publish('queue:finished', runLog);
-                EventBus.publish('queue:status', { running: false });
+                window.EventBus.publish('queue:finished', runLog);
+                window.EventBus.publish('queue:status', { running: false });
                 
                 if (anyFail) {
-                    Notification.show('Operational pipeline completed with recoverable errors.', 'warning');
+                    window.Notification.show('Operational pipeline completed with recoverable errors.', 'warning');
                 } else {
-                    Notification.show('Operational pipeline queue complete.', 'success');
+                    window.Notification.show('Operational pipeline queue complete.', 'success');
                 }
             }
         }
-        const ExecutionQueue = new ExecutionQueueService();
+        window.ExecutionEngine = new ExecutionEngine();
+        window.ExecutionQueue = window.ExecutionEngine;
+    </script>
+    <script type="module">
+        class Settings {
+            constructor() {
+                this.settingsKey = 'settings';
+            }
+            getSettings() {
+                return window.StateManager.getState().settings;
+            }
+            saveOperatorProfile(name, role) {
+                const settings = { ...this.getSettings(), operatorName: name, operatorRole: role };
+                window.StateManager.setState({ settings });
+                window.Logger.log('SUCCESS', `Saved Operator Profile: ${name} (${role})`, 'SETTINGS');
+                window.Notification.show('Operator Profile saved.', 'success');
+            }
+            saveAPIConfig(provider, token, model) {
+                const settings = { ...this.getSettings(), selectedAIProvider: provider, apiToken: token, aiModel: model };
+                window.StateManager.setState({ settings });
+                window.Logger.log('SUCCESS', `Saved AI Config: ${provider} (Model: ${model})`, 'SETTINGS');
+                window.Notification.show('AI Configuration updated.', 'success');
+            }
+            resetSystem() {
+                window.Storage.clear();
+                window.Logger.log('WARN', 'System configurations cleared. Reloading page...', 'SYSTEM');
+                window.Notification.show('System reset complete. Reloading...', 'success');
+                setTimeout(() => location.reload(), 1500);
+            }
+        }
+        window.Settings = new Settings();
+    </script>
+    <script type="module">
+        class Workspace {
+            constructor() {
+                this.saveKey = 'saved_workspace';
+            }
+            save() {
+                const state = window.StateManager.getState();
+                window.Storage.set(this.saveKey, {
+                    repositories: state.repositories,
+                    currentRepository: state.currentRepository,
+                    settings: state.settings,
+                    workspace: state.workspace,
+                    promptText: state.promptText,
+                    executionHistory: state.executionHistory,
+                    notes: state.notes
+                });
+                window.Logger.log('SUCCESS', 'Workspace state serialized and saved to browser memory.', 'WORKSPACE');
+                window.Notification.show('Workspace state saved to storage.', 'success');
+            }
+            load() {
+                const saved = window.Storage.get(this.saveKey);
+                if (saved) {
+                    window.StateManager.setState(saved);
+                    window.Logger.log('SUCCESS', 'Workspace state deserialized and restored from browser memory.', 'WORKSPACE');
+                    window.Notification.show('Workspace state restored successfully.', 'success');
+                } else {
+                    window.Notification.show('No saved workspace state found to restore.', 'warning');
+                }
+            }
+        }
+        window.Workspace = new Workspace();
+    </script>
+    <script type="module">
+        class FileExplorer {
+            constructor() {
+                this.explorerState = {
+                    activeTab: 'code'
+                };
+            }
+            getFiles() {
+                const state = window.StateManager.getState();
+                const repo = state.repositories.find(r => r.id === state.currentRepository);
+                return repo ? repo.files : [];
+            }
+            selectFile(path) {
+                const state = window.StateManager.getState();
+                const ws = { ...state.workspace, activeFilePath: path };
+                window.StateManager.setState({ workspace: ws });
+                window.Logger.log('INFO', `FileExplorer: selected file "${path}"`, 'EXPLORER');
+            }
+        }
+        window.FileExplorer = new FileExplorer();
+    </script>
+    <script type="module">
+        class Editor {
+            constructor() {
+                this.autosaveInterval = null;
+                this.startAutosave();
+            }
+            getActiveFile() {
+                const state = window.StateManager.getState();
+                const repo = state.repositories.find(r => r.id === state.currentRepository);
+                if (!repo) return null;
+                const path = state.workspace.activeFilePath || (repo.files[0] ? repo.files[0].path : null);
+                return repo.files.find(f => f.path === path);
+            }
+            saveContent(content) {
+                const file = this.getActiveFile();
+                if (file) {
+                    file.content = content;
+                    file.updated = new Date().toISOString();
+                    const state = window.StateManager.getState();
+                    window.StateManager.setState({ repositories: state.repositories });
+                    window.Logger.log('SUCCESS', `Editor: saved "${file.path}"`, 'EDITOR');
+                }
+            }
+            startAutosave() {
+                this.autosaveInterval = setInterval(() => {
+                    const txtField = document.getElementById('editor-textarea-field');
+                    if (txtField && window.UI && window.UI.unsavedContent !== null) {
+                        const file = this.getActiveFile();
+                        if (file && window.UI.unsavedContent !== file.content) {
+                            this.saveContent(window.UI.unsavedContent);
+                            window.UI.unsavedContent = null;
+                            const badge = document.querySelector('.unsaved-badge');
+                            if (badge) badge.style.display = 'none';
+                            window.Logger.log('SUCCESS', `Editor: autosaved "${file.path}"`, 'EDITOR');
+                            window.Notification.show(`Autosaved "${file.path}"`, 'success');
+                        }
+                    }
+                }, 5000);
+            }
+        }
+        window.Editor = new Editor();
+    </script>
+    <script type="module">
+        class MarkdownViewer {
+            render(markdown) {
+                if (!markdown) return '<p style="color:var(--text-muted); font-style:italic;">Empty document.</p>';
+                let html = markdown
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                
+                // Headings
+                html = html.replace(/^### (.*$)/gim, '<h3 style="font-size:1rem; margin:14px 0 8px 0; color:var(--text-heading); font-weight:600;">$1</h3>');
+                html = html.replace(/^## (.*$)/gim, '<h2 style="font-size:1.15rem; margin:18px 0 10px 0; color:var(--text-heading); border-bottom:1px solid var(--border-color); padding-bottom:4px; font-weight:600;">$1</h2>');
+                html = html.replace(/^# (.*$)/gim, '<h1 style="font-size:1.4rem; margin:20px 0 12px 0; color:var(--text-heading); font-weight:700;">$1</h1>');
+                
+                // Bold & Italics
+                html = html.replace(/\*\*(.*?)\*\"/g, '<strong style="color:var(--text-primary); font-weight:600;">$1</strong>');
+                html = html.replace(/\*(.*?)\*/g, '<em style="color:var(--text-primary);">$1</em>');
+                
+                // Code block / Inline code
+                html = html.replace(/`([^`]+)`/g, '<code style="background:var(--bg-secondary); padding:2px 6px; border-radius:4px; font-family:var(--font-mono); font-size:0.8rem; color:var(--color-warning);">$1</code>');
+                
+                // Unordered list
+                html = html.replace(/^\s*[\-\*]\s+(.*)$/gim, '<li style="margin-left:20px; margin-bottom:4px; list-style-type:disc;">$1</li>');
+                
+                // Linebreaks
+                html = html.replace(/\n$/gim, '<br />');
+                
+                return `<div style="line-height:1.6; font-size:0.88rem; font-family:sans-serif; color:var(--text-primary); padding:16px; box-sizing:border-box;">${html}</div>`;
+            }
+        }
+        window.MarkdownViewer = new MarkdownViewer();
+    </script>
+    <script type="module">
+        class Core {
+            boot() {
+                window.RepositoryManager.init();
+                window.ExecutionQueue.init();
+                window.UI.init();
+                
+                window.Logger.log('SUCCESS', 'Mission Runner OS fully loaded and synced in memory node.', 'SYSTEM');
+                window.Notification.show('Mission Runner OS node synced successfully.', 'success');
+            }
+        }
+        window.Core = new Core();
+    </script>
+    <script type="module">
 
         // Downstream global SDK mappings for plugins support
         window.MissionRunner = {
-            EventBus,
-            getState: () => StateManager.getState(),
-            setState: (u) => StateManager.setState(u),
-            executeDirectives: (text) => EventBus.publish('prompt:parse', text)
+            EventBus: window.EventBus,
+            getState: () => window.StateManager.getState(),
+            setState: (u) => window.StateManager.setState(u),
+            executeDirectives: (text) => window.EventBus.publish('prompt:parse', text)
         };
 
         /**
@@ -3709,18 +3928,13 @@ TRIGGER: build:test-complete`;
         
         // Single global instance bootstrap
         const UI = new UIEngine();
+        window.UI = UI;
 
         /**
          * System Bootstrap Orchestration
          */
         document.addEventListener('DOMContentLoaded', () => {
-            // Instantiate components and event flows
-            RepositoryManager.init();
-            ExecutionQueue.init();
-            UI.init();
-            
-            Logger.log('SUCCESS', 'Mission Runner OS fully loaded and synced in memory node.', 'SYSTEM');
-            Notification.show('Mission Runner OS node synced successfully.', 'success');
+            window.Core.boot();
         });
 
     </script>
