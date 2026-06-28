@@ -1,0 +1,24 @@
+{
+  "commands": [
+    {
+      "name": "COMMENT",
+      "args": ["message"],
+      "description": "Output diagnostic comments into the execution pipeline logs."
+    },
+    {
+      "name": "CREATE",
+      "args": ["path"],
+      "description": "Write a brand new code record node in the specified sandbox path location."
+    },
+    {
+      "name": "REPLACE",
+      "args": ["path"],
+      "description": "Perform precise line or block search-and-replace modification inside a sandbox file record."
+    },
+    {
+      "name": "DELETE",
+      "args": ["path"],
+      "description": "Purge the specified virtual code record from the active sandbox."
+    }
+  ]
+}

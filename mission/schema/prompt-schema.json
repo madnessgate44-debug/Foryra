@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MissionRunnerPromptDirectives",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "type": {
+        "type": "string",
+        "enum": ["COMMENT", "CREATE", "REPLACE", "DELETE", "MOVE", "COPY", "RENAME", "PATCH", "TRIGGER", "COMMIT", "CHECKOUT", "MERGE", "BUILD", "DEPLOY", "WAIT"]
+      },
+      "path": { "type": "string" },
+      "target": { "type": "string" },
+      "replacement": { "type": "array", "items": { "type": "string" } },
+      "content": { "type": "array", "items": { "type": "string" } },
+      "message": { "type": "string" }
+    },
+    "required": ["type"]
+  }
+}

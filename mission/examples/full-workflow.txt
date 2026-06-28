@@ -1,0 +1,26 @@
+COMMENT: Launching complete workspace pipeline example
+CREATE: package.json
+{
+  "name": "mission-sandbox-app",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}
+
+CREATE: src/index.js
+import { checkHealth } from './health.js';
+console.log("Staging workspace boots cleanly.");
+console.log(checkHealth());
+
+CREATE: src/health.js
+export function checkHealth() {
+  return "All virtual engines operational and reporting green.";
+}
+
+COMMENT: Checking file nodes modification via patch...
+REPLACE: src/health.js
+TARGET: return "All virtual engines operational and reporting green.";
+REPLACEMENT: return "All virtual engines operational and reporting green. Sync grade: A+";
+END:

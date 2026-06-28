@@ -1,0 +1,18 @@
+COMMENT: Ingesting feature upgrade template
+CREATE: src/new_module.js
+export class NewModule {
+    constructor() {
+        this.status = "nominal";
+    }
+    initialize() {
+        console.log("New module initialized smoothly.");
+    }
+}
+
+REPLACE: src/index.js
+TARGET: console.log("Mission Runner Operating System Booted Successfully!");
+REPLACEMENT: console.log("Mission Runner Operating System Booted Successfully!");
+import { NewModule } from './new_module.js';
+const module = new NewModule();
+module.initialize();
+END:
