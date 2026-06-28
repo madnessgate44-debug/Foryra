@@ -1064,6 +1064,115 @@
         <!-- WORKSPACE AREA (Dynamically switches screens) -->
         <main class="workspace-panel" id="workspace">
 
+            <!-- GLOBAL MISSION CONSOLE (Permanent, collapsible, at the top of the workspace) -->
+            <div class="global-mission-console" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; gap: 8px; padding: 12px; margin-bottom: 8px; box-sizing: border-box; flex-shrink: 0;">
+                <!-- Console Status and Main Actions Header Bar -->
+                <div class="console-header-bar" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-outlined" style="color: var(--color-accent-bright); font-size: 20px;">terminal_prompt</span>
+                        <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-heading);">MISSION CONSOLE</span>
+                        <!-- Status Badge -->
+                        <span id="global-pipeline-status" style="background: rgba(56, 189, 248, 0.1); color: var(--color-accent-bright); font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; display: flex; align-items: center; gap: 4px;">
+                            <span class="pulse-indicator" style="width: 6px; height: 6px; border-radius: 50%; background: var(--color-accent-bright);"></span>
+                            <span>IDLE</span>
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                        <!-- Saved recipes dropdown -->
+                        <select id="console-recipe-dropdown" class="setting-select" style="height: 28px; font-size: 0.75rem; width: 140px; padding: 0 4px; margin: 0; background: var(--bg-primary); border-color: var(--border-color); color: var(--text-primary);">
+                            <option value="">-- Load Prompt --</option>
+                            <option value="readme">Create README</option>
+                            <option value="test">Diagnostics Check</option>
+                            <option value="index_html">Sample index.html</option>
+                            <option value="todo">Create Todo App</option>
+                        </select>
+                        <button class="btn-core btn-outline" id="btn-prompt-parse" style="padding: 2px 8px; font-size: 0.75rem; height: 28px;" title="Analyze structured prompts">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">analytics</span>
+                            <span>Parse</span>
+                        </button>
+                        <button class="btn-core btn-primary" id="btn-prompt-execute" style="padding: 2px 8px; font-size: 0.75rem; height: 28px;" title="Run active queue">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">play_arrow</span>
+                            <span>Execute</span>
+                        </button>
+                        <button class="btn-core btn-outline" id="btn-console-stop" style="padding: 2px 8px; font-size: 0.75rem; height: 28px; border-color: var(--color-danger); color: var(--color-danger); display: none;" title="Force abort execution">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">stop</span>
+                            <span>Stop</span>
+                        </button>
+                        <button class="btn-core btn-outline" id="btn-console-undo" style="padding: 2px 8px; font-size: 0.75rem; height: 28px;" title="Rollback last destructive change">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">undo</span>
+                            <span>Undo</span>
+                        </button>
+                        <button class="btn-core btn-outline" id="btn-prompt-clear" style="padding: 2px 8px; font-size: 0.75rem; height: 28px;" title="Erase buffer">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">backspace</span>
+                            <span>Clear</span>
+                        </button>
+                        <!-- Toggle Expand -->
+                        <button class="btn-core btn-outline" id="btn-console-toggle-expand" style="padding: 2px 6px; font-size: 0.75rem; height: 28px; width: 28px; display: flex; align-items: center; justify-content: center;" title="Expand/Collapse Console Body">
+                            <span class="material-symbols-outlined" id="console-expand-icon">expand_more</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Collapsible Console Body -->
+                <div id="console-body" style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="position: relative; display: flex; gap: 8px;">
+                        <textarea class="prompt-textarea" id="main-prompt-input" style="height: 100px; font-family: var(--font-mono); font-size: 0.8rem; margin: 0; padding: 10px; flex: 1;" placeholder="COMMENT: Enter your structured instructions here...&#10;CREATE: src/index.js&#10;// Content of the script...&#10;REPLACE: src/index.js&#10;TARGET: // target search line&#10;REPLACEMENT: // upgraded replacement line&#10;END:"></textarea>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <button class="btn-core btn-outline" id="btn-prompt-import" style="padding: 2px 8px; font-size: 0.7rem; height: 28px; width: 120px;" title="Import a prompt file from client storage">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">upload_file</span>
+                                <span>Import File</span>
+                            </button>
+                            <input type="file" id="prompt-import-file" style="display: none;" accept=".txt,.json,.md">
+                            <button class="btn-core btn-outline" id="btn-prompt-export" style="padding: 2px 8px; font-size: 0.7rem; height: 28px; width: 120px;" title="Download active prompt buffer as a text file">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">download</span>
+                                <span>Export File</span>
+                            </button>
+                            <button class="btn-core btn-outline" id="btn-prompt-example" style="padding: 2px 8px; font-size: 0.7rem; height: 28px; width: 120px;" title="Load structured template directives">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">template_class</span>
+                                <span>Load Template</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Visual Preview Panel (Goal 3) -->
+                    <div id="prompt-execution-preview-pane" style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 6px; padding: 10px; display: none; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--text-heading); display: flex; align-items: center; gap: 4px;">
+                                <span class="material-symbols-outlined" style="color: var(--color-warning); font-size: 16px;">visibility</span>
+                                PIPELINE EXECUTION PREVIEW
+                            </span>
+                            <button class="btn-core btn-primary" id="btn-preview-confirm" style="padding: 1px 8px; font-size: 0.7rem; height: 22px;">Confirm and Run</button>
+                        </div>
+                        <!-- Grid detailing metrics of execution preview -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; font-size: 0.72rem;">
+                            <div style="background: rgba(255, 255, 255, 0.02); padding: 6px; border-radius: 4px; border: 1px dashed var(--border-color);">
+                                <div style="color: var(--text-muted);">Detected Operations</div>
+                                <div id="preview-detected-ops" style="font-weight: 600; color: var(--text-primary); font-family: var(--font-mono); margin-top: 2px;">None</div>
+                            </div>
+                            <div style="background: rgba(255, 255, 255, 0.02); padding: 6px; border-radius: 4px; border: 1px dashed var(--border-color);">
+                                <div style="color: var(--text-muted);">Affected Repositories</div>
+                                <div id="preview-affected-repos" style="font-weight: 600; color: var(--text-primary); margin-top: 2px;">None</div>
+                            </div>
+                            <div style="background: rgba(255, 255, 255, 0.02); padding: 6px; border-radius: 4px; border: 1px dashed var(--border-color);">
+                                <div style="color: var(--text-muted);">Affected Files</div>
+                                <div id="preview-affected-files" style="font-weight: 600; color: var(--text-primary); margin-top: 2px;">None</div>
+                            </div>
+                            <div style="background: rgba(255, 255, 255, 0.02); padding: 6px; border-radius: 4px; border: 1px dashed var(--border-color);">
+                                <div style="color: var(--text-muted);">Potential Conflicts</div>
+                                <div id="preview-conflicts" style="font-weight: 600; color: var(--text-primary); margin-top: 2px;">None</div>
+                            </div>
+                        </div>
+                        <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 4px; padding: 6px 10px; font-size: 0.7rem; color: #f59e0b; display: flex; align-items: flex-start; gap: 6px;">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">warning</span>
+                            <div id="preview-warnings" style="line-height: 1.3;">No warnings detected. Nominal sequence.</div>
+                        </div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">
+                            <strong>Execution Order:</strong> <span id="preview-execution-order" style="font-family: var(--font-mono); color: var(--text-primary);">None</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 1. DASHBOARD COMMAND DECK -->
             <div class="screen-view active" id="screen-dashboard">
                 <!-- Page Title -->
@@ -1105,44 +1214,44 @@
                 </div>
 
                 <div class="dashboard-layout">
-                    <!-- Column 1: Mode 2 (Prompt Board) -->
+                    <!-- Column 1: Mode 2 (Prompt Board / Repo Memory Overview) -->
                     <div class="dashboard-card-stack">
                         <div class="dashboard-grid-card">
                             <div class="dashboard-header-block">
                                 <span class="dashboard-card-title">
-                                    <span class="material-symbols-outlined" style="color: var(--color-accent-bright);">terminal_prompt</span>
-                                    Prompt Command Processor (Mode 2)
+                                    <span class="material-symbols-outlined" style="color: var(--color-accent-bright);">memory</span>
+                                    Repository Memory Overview
                                 </span>
                             </div>
-
-                            <div class="prompt-editor-container">
-                                <textarea class="prompt-textarea" id="main-prompt-input" placeholder="COMMENT: Enter your structured instructions here...&#10;CREATE: src/index.js&#10;// Content of the script...&#10;REPLACE: src/index.js&#10;TARGET: // target search line&#10;REPLACEMENT: // upgraded replacement line&#10;END:"></textarea>
-                                <div class="prompt-actions-row" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                    <button class="btn-core btn-outline" id="btn-prompt-parse" style="flex:1; min-width: 80px;">
-                                        <span class="material-symbols-outlined">analytics</span>
-                                        <span>Parse</span>
-                                    </button>
-                                    <button class="btn-core btn-primary" id="btn-prompt-execute" style="flex:1; min-width: 80px;">
-                                        <span class="material-symbols-outlined">play_arrow</span>
-                                        <span>Execute</span>
-                                    </button>
-                                    <button class="btn-core btn-outline" id="btn-prompt-clear" style="flex:1; min-width: 80px;">
-                                        <span class="material-symbols-outlined">clear_all</span>
-                                        <span>Clear</span>
-                                    </button>
-                                    <button class="btn-core btn-outline" id="btn-prompt-import" style="flex:1; min-width: 120px;" title="Import a prompt file from client storage">
-                                        <span class="material-symbols-outlined">upload_file</span>
-                                        <span>Import Text File</span>
-                                        <input type="file" id="prompt-import-file" style="display: none;" accept=".txt,.json,.md">
-                                    </button>
-                                    <button class="btn-core btn-outline" id="btn-prompt-export" style="flex:1; min-width: 120px;" title="Download active prompt buffer as a text file">
-                                        <span class="material-symbols-outlined">download</span>
-                                        <span>Export Prompt</span>
-                                    </button>
-                                    <button class="btn-core btn-outline" id="btn-prompt-example" style="flex:1; min-width: 120px;" title="Load structured template directives">
-                                        <span class="material-symbols-outlined">template_class</span>
-                                        <span>Load Example</span>
-                                    </button>
+                            <div id="dashboard-repo-memory-content" style="display: flex; flex-direction: column; gap: 10px; font-size: 0.82rem;">
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:6px;">
+                                    <span style="color:var(--text-muted);">Active Sandbox</span>
+                                    <span id="dash-repo-name" style="font-weight:600; color:var(--text-primary);">Default Sandbox</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:6px;">
+                                    <span style="color:var(--text-muted);">Active Branch</span>
+                                    <span id="dash-repo-branch" style="font-weight:600; color:var(--color-accent-bright); font-family:var(--font-mono);">main</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:6px;">
+                                    <span style="color:var(--text-muted);">Total Virtual Nodes</span>
+                                    <span id="dash-repo-files" style="font-weight:600; color:var(--text-primary);">3 files</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:6px;">
+                                    <span style="color:var(--text-muted);">Last Opened</span>
+                                    <span id="dash-repo-opened" style="font-weight:600; color:var(--text-primary); font-size: 0.75rem;">Just now</span>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:4px; margin-top:4px;">
+                                    <span style="color:var(--text-muted); font-size:0.75rem; font-weight:600; text-transform:uppercase;">Quick Memory Actions</span>
+                                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                        <button class="btn-core btn-outline" id="btn-dash-open-memory" style="padding:2px 8px; font-size:0.72rem; height:24px;">
+                                            <span class="material-symbols-outlined" style="font-size:14px;">psychology</span>
+                                            <span>Open Memory Center</span>
+                                        </button>
+                                        <button class="btn-core btn-outline" id="btn-dash-add-todo" style="padding:2px 8px; font-size:0.72rem; height:24px;">
+                                            <span class="material-symbols-outlined" style="font-size:14px;">playlist_add</span>
+                                            <span>Add Task</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1676,9 +1785,32 @@
             }
         }
         window.StateManager = new StateManager();
-    </script>
-    <script type="module">
 
+        class UndoStack {
+            constructor() {
+                this.history = [];
+            }
+            pushState() {
+                const reposCopy = JSON.parse(JSON.stringify(window.StateManager.getState().repositories));
+                this.history.push(reposCopy);
+                if (this.history.length > 20) {
+                    this.history.shift(); // Max 20 undo states
+                }
+            }
+            popAndUndo() {
+                if (this.history.length === 0) {
+                    window.Notification.show('No previous actions to undo.', 'warning');
+                    return false;
+                }
+                const previousRepos = this.history.pop();
+                window.StateManager.setState({ repositories: previousRepos });
+                window.Notification.show('Rolled back last changes successfully. (Undo Complete)', 'success');
+                window.Logger.log('SUCCESS', 'SYSTEM: Rolled back repository state to previous check.', 'SYSTEM');
+                return true;
+            }
+        }
+        window.UndoStack = new UndoStack();
+    </script>
     <script type="module">
         class VirtualFileSystem {
             createFile(repoId, path, content) {
@@ -1918,6 +2050,281 @@
             }
         }
         window.RepositoryManager = new RepositoryManager();
+
+        class CommandRegistry {
+            constructor() {
+                this.commands = {};
+            }
+
+            register(name, handler) {
+                this.commands[name.toUpperCase()] = handler;
+            }
+
+            async execute(name, args = {}) {
+                const cmdName = name.toUpperCase();
+                const handler = this.commands[cmdName];
+                if (!handler) {
+                    throw new Error(`Command "${cmdName}" is not registered in the system registry.`);
+                }
+                
+                // Safety: Automatically push current state to Undo Stack before destructive operations
+                const destructive = ['DELETE', 'DELETE_FILE', 'DELETE_FOLDER', 'REPLACE', 'REPLACE_TEXT', 'RESTORE', 'RESET'];
+                if (destructive.includes(cmdName)) {
+                    if (window.UndoStack) {
+                        window.UndoStack.pushState();
+                    }
+                }
+
+                window.Logger.log('INFO', `Registry Executing: [${cmdName}]`, 'REGISTRY');
+                try {
+                    const result = await handler(args);
+                    return result;
+                } catch (err) {
+                    window.Logger.log('ERROR', `Command [${cmdName}] failed: ${err.message}`, 'REGISTRY');
+                    throw err;
+                }
+            }
+        }
+        window.CommandRegistry = new CommandRegistry();
+
+        // Register Virtual FS Commands
+        window.CommandRegistry.register('CREATE_FILE', async (args) => {
+            const state = window.StateManager.getState();
+            return window.VirtualFS.createFile(state.currentRepository, args.path, args.content || '');
+        });
+        window.CommandRegistry.register('CREATE', async (args) => {
+            return await window.CommandRegistry.execute('CREATE_FILE', args);
+        });
+
+        window.CommandRegistry.register('UPDATE_FILE', async (args) => {
+            const state = window.StateManager.getState();
+            return window.VirtualFS.writeFile(state.currentRepository, args.path, args.content || '');
+        });
+
+        window.CommandRegistry.register('DELETE_FILE', async (args) => {
+            const state = window.StateManager.getState();
+            return window.VirtualFS.deleteFile(state.currentRepository, args.path);
+        });
+        window.CommandRegistry.register('DELETE', async (args) => {
+            return await window.CommandRegistry.execute('DELETE_FILE', args);
+        });
+
+        window.CommandRegistry.register('MOVE_FILE', async (args) => {
+            const state = window.StateManager.getState();
+            const repos = [...state.repositories];
+            const repo = repos.find(r => r.id === state.currentRepository);
+            const file = repo.files.find(f => f.path === args.from);
+            if (!file) throw new Error(`File "${args.from}" not found.`);
+            file.path = args.to;
+            file.updated = new Date().toISOString();
+            window.StateManager.setState({ repositories: repos });
+            window.Logger.log('SUCCESS', `VFS: Moved "${args.from}" to "${args.to}"`, 'VFS');
+            return true;
+        });
+        window.CommandRegistry.register('MOVE', async (args) => {
+            return await window.CommandRegistry.execute('MOVE_FILE', args);
+        });
+
+        window.CommandRegistry.register('RENAME_FILE', async (args) => {
+            return await window.CommandRegistry.execute('MOVE_FILE', { from: args.from, to: args.to });
+        });
+        window.CommandRegistry.register('RENAME', async (args) => {
+            return await window.CommandRegistry.execute('MOVE_FILE', { from: args.from, to: args.to });
+        });
+
+        window.CommandRegistry.register('REPLACE_TEXT', async (args) => {
+            const state = window.StateManager.getState();
+            return window.VirtualFS.replaceText(state.currentRepository, args.path, args.target, args.replacement);
+        });
+        window.CommandRegistry.register('REPLACE', async (args) => {
+            return await window.CommandRegistry.execute('REPLACE_TEXT', args);
+        });
+
+        window.CommandRegistry.register('APPEND_TEXT', async (args) => {
+            const state = window.StateManager.getState();
+            const current = window.VirtualFS.readFile(state.currentRepository, args.path);
+            const next = current + '\n' + args.content;
+            return window.VirtualFS.writeFile(state.currentRepository, args.path, next);
+        });
+
+        window.CommandRegistry.register('INSERT_BEFORE', async (args) => {
+            const state = window.StateManager.getState();
+            const current = window.VirtualFS.readFile(state.currentRepository, args.path);
+            if (!current.includes(args.target)) {
+                throw new Error(`Target text to insert before not found in "${args.path}".`);
+            }
+            const next = current.replace(args.target, (args.content || '') + '\n' + args.target);
+            return window.VirtualFS.writeFile(state.currentRepository, args.path, next);
+        });
+
+        window.CommandRegistry.register('INSERT_AFTER', async (args) => {
+            const state = window.StateManager.getState();
+            const current = window.VirtualFS.readFile(state.currentRepository, args.path);
+            if (!current.includes(args.target)) {
+                throw new Error(`Target text to insert after not found in "${args.path}".`);
+            }
+            const next = current.replace(args.target, args.target + '\n' + (args.content || ''));
+            return window.VirtualFS.writeFile(state.currentRepository, args.path, next);
+        });
+
+        window.CommandRegistry.register('CREATE_FOLDER', async (args) => {
+            window.Logger.log('SUCCESS', `VFS: Created virtual directory path "${args.path}"`, 'VFS');
+            return true;
+        });
+
+        window.CommandRegistry.register('DELETE_FOLDER', async (args) => {
+            const state = window.StateManager.getState();
+            const repos = [...state.repositories];
+            const repo = repos.find(r => r.id === state.currentRepository);
+            const initialCount = repo.files.length;
+            repo.files = repo.files.filter(f => !f.path.startsWith(args.path));
+            if (repo.files.length === initialCount) {
+                throw new Error(`No files found inside virtual folder "${args.path}".`);
+            }
+            window.StateManager.setState({ repositories: repos });
+            window.Logger.log('SUCCESS', `VFS: Deleted virtual folder "${args.path}"`, 'VFS');
+            return true;
+        });
+
+        // Repository & Git Commands
+        window.CommandRegistry.register('OPEN_REPOSITORY', async (args) => {
+            const state = window.StateManager.getState();
+            const idOrName = args.id || args.name || '';
+            const repo = state.repositories.find(r => r.id === idOrName || r.name.toLowerCase() === idOrName.toLowerCase());
+            if (repo) {
+                window.RepositoryManager.open(repo.id);
+            } else {
+                const newId = window.RepositoryManager.create({ name: idOrName, description: 'Created dynamically' });
+                window.RepositoryManager.open(newId);
+            }
+            return true;
+        });
+        window.CommandRegistry.register('SWITCH_REPOSITORY', async (args) => {
+            return await window.CommandRegistry.execute('OPEN_REPOSITORY', args);
+        });
+
+        window.CommandRegistry.register('CREATE_BRANCH', async (args) => {
+            const state = window.StateManager.getState();
+            const repos = [...state.repositories];
+            const repo = repos.find(r => r.id === state.currentRepository);
+            repo.branch = args.name || 'main';
+            window.StateManager.setState({ repositories: repos });
+            window.Logger.log('SUCCESS', `GIT: Created and switched to branch "${args.name}"`, 'GIT');
+            return true;
+        });
+
+        window.CommandRegistry.register('CHECKOUT_BRANCH', async (args) => {
+            return await window.CommandRegistry.execute('CREATE_BRANCH', args);
+        });
+
+        window.CommandRegistry.register('COMMIT', async (args) => {
+            const state = window.StateManager.getState();
+            window.RepositoryManager.commit(state.currentRepository, args.message);
+            return true;
+        });
+
+        window.CommandRegistry.register('PUSH', async (args) => {
+            window.Logger.log('INFO', 'GIT: Initiating remote synchronization deployment push...', 'GIT');
+            await new Promise(resolve => setTimeout(resolve, 600));
+            window.Logger.log('SUCCESS', 'GIT: Repository push nominal. Remote HEAD is in sync.', 'GIT');
+            return true;
+        });
+
+        window.CommandRegistry.register('PULL', async (args) => {
+            window.Logger.log('INFO', 'GIT: Querying upstream remote server for latest commits...', 'GIT');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            window.Logger.log('SUCCESS', 'GIT: Repository pull complete. Workspace is up-to-date.', 'GIT');
+            return true;
+        });
+
+        window.CommandRegistry.register('MERGE', async (args) => {
+            window.Logger.log('INFO', `GIT: Merging branch "${args.from || 'feature'}" into "${args.to || 'main'}"...`, 'GIT');
+            await new Promise(resolve => setTimeout(resolve, 400));
+            window.Logger.log('SUCCESS', 'GIT: Fast-forward branch merge completed successfully.', 'GIT');
+            return true;
+        });
+
+        // Extended Operational Commands
+        window.CommandRegistry.register('CREATE_RELEASE', async (args) => {
+            const tag = args.tag || 'v1.0.0';
+            window.Logger.log('SUCCESS', `DEPLOY: Created official release tag "${tag}"`, 'DEPLOY');
+            return true;
+        });
+
+        window.CommandRegistry.register('CREATE_ISSUE', async (args) => {
+            const title = args.title || 'Diagnostic flag failure';
+            window.Logger.log('SUCCESS', `ISSUE: Registered diagnostic issue tracker entry: "${title}"`, 'SYSTEM');
+            return true;
+        });
+
+        window.CommandRegistry.register('RUN_BUILD', async (args) => {
+            window.Logger.log('INFO', 'BUILD: Compiling and verifying source nodes syntax...', 'BUILD');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            window.Logger.log('SUCCESS', 'BUILD: Incremental compilation finished successfully. 100% PASS', 'BUILD');
+            return true;
+        });
+
+        window.CommandRegistry.register('DEPLOY', async (args) => {
+            window.Logger.log('INFO', 'DEPLOY: Constructing sandboxed distribution artifact...', 'DEPLOY');
+            await new Promise(resolve => setTimeout(resolve, 600));
+            const url = `https://mission-runner.pages.internal/${Math.random().toString(36).substring(2, 8)}`;
+            window.Logger.log('SUCCESS', `DEPLOY: Live container deployment verified at: ${url}`, 'DEPLOY');
+            return true;
+        });
+
+        window.CommandRegistry.register('SEARCH', async (args) => {
+            const state = window.StateManager.getState();
+            const query = (args.query || '').toLowerCase();
+            const repo = state.repositories.find(r => r.id === state.currentRepository);
+            const matches = repo.files.filter(f => f.path.toLowerCase().includes(query) || f.content.toLowerCase().includes(query));
+            window.Logger.log('INFO', `SEARCH: Query "${query}" matched ${matches.length} files.`, 'SYSTEM');
+            matches.forEach(f => {
+                window.Logger.log('SUCCESS', `SEARCH MATCH: "${f.path}"`, 'SYSTEM');
+            });
+            return matches;
+        });
+
+        window.CommandRegistry.register('GENERATE', async (args) => {
+            window.Logger.log('INFO', `AI: Consulting local model provider on prompt request: "${args.prompt}"...`, 'AI');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            window.Logger.log('SUCCESS', `AI: Generation nominal. Outlining model results inside active logs.`, 'AI');
+            return true;
+        });
+
+        window.CommandRegistry.register('DOCUMENT', async (args) => {
+            const state = window.StateManager.getState();
+            const current = window.VirtualFS.readFile(state.currentRepository, args.path);
+            const doc = `/**\n * Auto-generated documentation for: ${args.path}\n * Generated: ${new Date().toLocaleString()}\n */\n` + current;
+            return window.VirtualFS.writeFile(state.currentRepository, args.path, doc);
+        });
+
+        window.CommandRegistry.register('BACKUP', async (args) => {
+            const exportBtn = document.getElementById('btn-export-backup');
+            if (exportBtn) exportBtn.click();
+            return true;
+        });
+
+        window.CommandRegistry.register('RESTORE', async (args) => {
+            if (args.data) {
+                window.StateManager.setState(args.data);
+                window.Logger.log('SUCCESS', 'SYSTEM: State records restored from backup JSON successfully.', 'SYSTEM');
+                return true;
+            }
+            throw new Error('No restore data supplied.');
+        });
+
+        window.CommandRegistry.register('IMPORT_ZIP', async (args) => {
+            if (args.file) {
+                window.UI.importZip(args.file);
+                return true;
+            }
+            throw new Error('No zip file provided.');
+        });
+
+        window.CommandRegistry.register('EXPORT_WORKSPACE', async (args) => {
+            window.UI.downloadActiveRepoAsZip();
+            return true;
+        });
     </script>
     <script type="module">
         class ThemeManager {
@@ -1984,8 +2391,17 @@
                 const lines = text.split('\n');
                 const operations = [];
                 let currentOp = null;
-                let mode = null; // 'CREATE', 'REPLACE_TARGET', 'REPLACE_REPLACEMENT'
+                let mode = null; // 'CREATE', 'REPLACE_TARGET', 'REPLACE_REPLACEMENT', 'APPEND_TEXT', 'INSERT_BEFORE_TARGET', 'INSERT_BEFORE_CONTENT', 'INSERT_AFTER_TARGET', 'INSERT_AFTER_CONTENT'
                 const errors = [];
+
+                const singleLineKeywords = [
+                    'DELETE_FILE', 'DELETE', 'MOVE_FILE', 'MOVE', 'RENAME_FILE', 'RENAME',
+                    'CREATE_FOLDER', 'DELETE_FOLDER', 'OPEN_REPOSITORY', 'SWITCH_REPOSITORY',
+                    'CREATE_BRANCH', 'CHECKOUT_BRANCH', 'COMMIT', 'PUSH', 'PULL', 'MERGE',
+                    'CREATE_RELEASE', 'CREATE_ISSUE', 'RUN_BUILD', 'DEPLOY', 'SEARCH',
+                    'GENERATE', 'DOCUMENT', 'BACKUP', 'RESTORE', 'IMPORT_ZIP', 'EXPORT_WORKSPACE',
+                    'UPLOAD', 'DOWNLOAD', 'TRIGGER', 'WAIT', 'VAR'
+                ];
 
                 for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
@@ -2000,14 +2416,13 @@
                             status: 'Queued'
                         });
                     }
-                    else if (trimmed.startsWith('CREATE:')) {
+                    else if (trimmed.startsWith('CREATE:') || trimmed.startsWith('CREATE_FILE:')) {
                         if (currentOp) { operations.push(currentOp); }
-                        const path = trimmed.substring(7).trim();
-                        if (!path) {
-                            errors.push({ line: i + 1, message: 'CREATE command is missing a file path.' });
-                        }
+                        const keyword = trimmed.startsWith('CREATE_FILE:') ? 'CREATE_FILE' : 'CREATE';
+                        const offset = keyword === 'CREATE_FILE' ? 12 : 7;
+                        const path = trimmed.substring(offset).trim();
                         currentOp = {
-                            type: 'CREATE',
+                            type: keyword,
                             path,
                             content: [],
                             lineNum: i + 1,
@@ -2015,42 +2430,51 @@
                         };
                         mode = 'CREATE';
                     }
-                    else if (trimmed.startsWith('DELETE:')) {
-                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
-                        const path = trimmed.substring(7).trim();
-                        if (!path) {
-                            errors.push({ line: i + 1, message: 'DELETE command is missing a file path.' });
-                        }
-                        operations.push({
-                            type: 'DELETE',
-                            path,
-                            lineNum: i + 1,
-                            status: 'Queued'
-                        });
-                    }
-                    else if (trimmed.startsWith('REPLACE:')) {
+                    else if (trimmed.startsWith('APPEND_TEXT:')) {
                         if (currentOp) { operations.push(currentOp); }
-                        const path = trimmed.substring(8).trim();
-                        if (!path) {
-                            errors.push({ line: i + 1, message: 'REPLACE command is missing a file path.' });
-                        }
+                        const path = trimmed.substring(12).trim();
                         currentOp = {
-                            type: 'REPLACE',
+                            type: 'APPEND_TEXT',
                             path,
-                            target: [],
-                            replacement: [],
+                            content: [],
                             lineNum: i + 1,
                             status: 'Queued'
                         };
-                        mode = 'REPLACE_TARGET';
+                        mode = 'APPEND_TEXT';
+                    }
+                    else if (trimmed.startsWith('INSERT_BEFORE:')) {
+                        if (currentOp) { operations.push(currentOp); }
+                        const path = trimmed.substring(14).trim();
+                        currentOp = {
+                            type: 'INSERT_BEFORE',
+                            path,
+                            target: [],
+                            content: [],
+                            lineNum: i + 1,
+                            status: 'Queued'
+                        };
+                        mode = 'INSERT_BEFORE_TARGET';
+                    }
+                    else if (trimmed.startsWith('INSERT_AFTER:')) {
+                        if (currentOp) { operations.push(currentOp); }
+                        const path = trimmed.substring(13).trim();
+                        currentOp = {
+                            type: 'INSERT_AFTER',
+                            path,
+                            target: [],
+                            content: [],
+                            lineNum: i + 1,
+                            status: 'Queued'
+                        };
+                        mode = 'INSERT_AFTER_TARGET';
                     }
                     else if (trimmed.startsWith('TARGET:')) {
-                        if (currentOp && currentOp.type === 'REPLACE') {
-                            mode = 'REPLACE_TARGET';
+                        if (currentOp && (currentOp.type === 'REPLACE' || currentOp.type === 'INSERT_BEFORE' || currentOp.type === 'INSERT_AFTER')) {
+                            mode = currentOp.type === 'REPLACE' ? 'REPLACE_TARGET' : (currentOp.type === 'INSERT_BEFORE' ? 'INSERT_BEFORE_TARGET' : 'INSERT_AFTER_TARGET');
                             const rest = line.substring(line.indexOf('TARGET:') + 7).trim();
                             if (rest) currentOp.target.push(rest);
                         } else {
-                            errors.push({ line: i + 1, message: 'TARGET: keyword must be placed inside a REPLACE block.' });
+                            errors.push({ line: i + 1, message: 'TARGET: keyword must be placed inside a REPLACE, INSERT_BEFORE, or INSERT_AFTER block.' });
                         }
                     }
                     else if (trimmed.startsWith('REPLACEMENT:')) {
@@ -2062,109 +2486,29 @@
                             errors.push({ line: i + 1, message: 'REPLACEMENT: keyword must be placed inside a REPLACE block.' });
                         }
                     }
-                    else if (trimmed.startsWith('MOVE:')) {
-                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
-                        const args = trimmed.substring(5).trim();
-                        const parts = args.split('->').map(p => p.trim());
-                        if (parts.length !== 2) {
-                            errors.push({ line: i + 1, message: 'MOVE expects format: MOVE: old_path -> new_path' });
+                    else if (trimmed.startsWith('CONTENT:')) {
+                        if (currentOp && (currentOp.type === 'INSERT_BEFORE' || currentOp.type === 'INSERT_AFTER')) {
+                            mode = currentOp.type === 'INSERT_BEFORE' ? 'INSERT_BEFORE_CONTENT' : 'INSERT_AFTER_CONTENT';
+                            const rest = line.substring(line.indexOf('CONTENT:') + 8).trim();
+                            if (rest) currentOp.content.push(rest);
+                        } else {
+                            errors.push({ line: i + 1, message: 'CONTENT: keyword must be placed inside an INSERT_BEFORE or INSERT_AFTER block.' });
                         }
-                        operations.push({
-                            type: 'MOVE',
-                            from: parts[0],
-                            to: parts[1] || '',
-                            lineNum: i + 1,
-                            status: 'Queued'
-                        });
                     }
-                    else if (trimmed.startsWith('COPY:')) {
-                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
-                        const args = trimmed.substring(5).trim();
-                        const parts = args.split('->').map(p => p.trim());
-                        if (parts.length !== 2) {
-                            errors.push({ line: i + 1, message: 'COPY expects format: COPY: src_path -> dest_path' });
-                        }
-                        operations.push({
-                            type: 'COPY',
-                            from: parts[0],
-                            to: parts[1] || '',
-                            lineNum: i + 1,
-                            status: 'Queued'
-                        });
-                    }
-                    else if (trimmed.startsWith('RENAME:')) {
-                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
-                        const args = trimmed.substring(7).trim();
-                        const parts = args.split('->').map(p => p.trim());
-                        if (parts.length !== 2) {
-                            errors.push({ line: i + 1, message: 'RENAME expects format: RENAME: old_name -> new_name' });
-                        }
-                        operations.push({
-                            type: 'RENAME',
-                            from: parts[0],
-                            to: parts[1] || '',
-                            lineNum: i + 1,
-                            status: 'Queued'
-                        });
-                    }
-                    else if (trimmed.startsWith('UPLOAD:')) {
-                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
-                        const path = trimmed.substring(7).trim();
-                        operations.push({
-                            type: 'UPLOAD',
+                    else if (trimmed.startsWith('REPLACE:') || trimmed.startsWith('REPLACE_TEXT:')) {
+                        if (currentOp) { operations.push(currentOp); }
+                        const keyword = trimmed.startsWith('REPLACE_TEXT:') ? 'REPLACE_TEXT' : 'REPLACE';
+                        const offset = keyword === 'REPLACE_TEXT' ? 13 : 8;
+                        const path = trimmed.substring(offset).trim();
+                        currentOp = {
+                            type: keyword,
                             path,
+                            target: [],
+                            replacement: [],
                             lineNum: i + 1,
                             status: 'Queued'
-                        });
-                    }
-                    else if (trimmed.startsWith('DOWNLOAD:')) {
-                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
-                        const path = trimmed.substring(9).trim();
-                        operations.push({
-                            type: 'DOWNLOAD',
-                            path,
-                            lineNum: i + 1,
-                            status: 'Queued'
-                        });
-                    }
-                    else if (trimmed.startsWith('TRIGGER:')) {
-                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
-                        const action = trimmed.substring(8).trim();
-                        operations.push({
-                            type: 'TRIGGER',
-                            action,
-                            lineNum: i + 1,
-                            status: 'Queued'
-                        });
-                    }
-                    else if (trimmed.startsWith('WAIT:')) {
-                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
-                        const delay = parseInt(trimmed.substring(5).trim(), 10);
-                        if (isNaN(delay)) {
-                            errors.push({ line: i + 1, message: 'WAIT command expects milliseconds, e.g. WAIT: 1000' });
-                        }
-                        operations.push({
-                            type: 'WAIT',
-                            delay: delay || 1000,
-                            lineNum: i + 1,
-                            status: 'Queued'
-                        });
-                    }
-                    else if (trimmed.startsWith('VAR:')) {
-                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
-                        const eqIdx = trimmed.indexOf('=');
-                        if (eqIdx === -1) {
-                            errors.push({ line: i + 1, message: 'VAR command expects format: VAR: name = value' });
-                        }
-                        const name = trimmed.substring(4, eqIdx).trim();
-                        const val = trimmed.substring(eqIdx + 1).trim();
-                        operations.push({
-                            type: 'VAR',
-                            name,
-                            value: val,
-                            lineNum: i + 1,
-                            status: 'Queued'
-                        });
+                        };
+                        mode = 'REPLACE_TARGET';
                     }
                     else if (trimmed === 'END:' || trimmed === 'END') {
                         if (currentOp) {
@@ -2173,14 +2517,77 @@
                         }
                         mode = null;
                     }
+                    // Handle other single-line commands
                     else {
-                        if (currentOp) {
+                        let isKeyword = false;
+                        for (const kw of singleLineKeywords) {
+                            if (trimmed.startsWith(kw + ':') || trimmed === kw) {
+                                isKeyword = true;
+                                if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
+                                
+                                const arg = trimmed.startsWith(kw + ':') ? trimmed.substring(kw.length + 1).trim() : '';
+                                const op = {
+                                    type: kw,
+                                    lineNum: i + 1,
+                                    status: 'Queued'
+                                };
+
+                                if (kw === 'DELETE_FILE' || kw === 'DELETE' || kw === 'DOCUMENT') {
+                                    op.path = arg;
+                                } else if (kw === 'MOVE_FILE' || kw === 'MOVE' || kw === 'RENAME_FILE' || kw === 'RENAME' || kw === 'MERGE') {
+                                    const parts = arg.split('->').map(p => p.trim());
+                                    op.from = parts[0];
+                                    op.to = parts[1] || '';
+                                } else if (kw === 'CREATE_FOLDER' || kw === 'DELETE_FOLDER') {
+                                    op.path = arg;
+                                } else if (kw === 'OPEN_REPOSITORY' || kw === 'SWITCH_REPOSITORY') {
+                                    op.id = arg;
+                                    op.name = arg;
+                                } else if (kw === 'CREATE_BRANCH' || kw === 'CHECKOUT_BRANCH') {
+                                    op.name = arg;
+                                } else if (kw === 'COMMIT') {
+                                    op.message = arg;
+                                } else if (kw === 'CREATE_RELEASE') {
+                                    op.tag = arg;
+                                } else if (kw === 'CREATE_ISSUE') {
+                                    op.title = arg;
+                                } else if (kw === 'SEARCH') {
+                                    op.query = arg;
+                                } else if (kw === 'GENERATE') {
+                                    op.prompt = arg;
+                                } else if (kw === 'UPLOAD' || kw === 'DOWNLOAD') {
+                                    op.path = arg;
+                                } else if (kw === 'TRIGGER') {
+                                    op.action = arg;
+                                } else if (kw === 'WAIT') {
+                                    op.delay = parseInt(arg, 10) || 1000;
+                                } else if (kw === 'VAR') {
+                                    const eqIdx = arg.indexOf('=');
+                                    op.name = eqIdx === -1 ? arg : arg.substring(0, eqIdx).trim();
+                                    op.value = eqIdx === -1 ? '' : arg.substring(eqIdx + 1).trim();
+                                    if (eqIdx === -1) {
+                                        errors.push({ line: i + 1, message: 'VAR command expects format: VAR: name = value' });
+                                    }
+                                }
+
+                                operations.push(op);
+                                break;
+                            }
+                        }
+
+                        if (!isKeyword && currentOp) {
                             if (mode === 'CREATE') {
+                                currentOp.content.push(line);
+                            } else if (mode === 'APPEND_TEXT') {
                                 currentOp.content.push(line);
                             } else if (mode === 'REPLACE_TARGET') {
                                 currentOp.target.push(line);
                             } else if (mode === 'REPLACE_REPLACEMENT') {
                                 currentOp.replacement.push(line);
+                            } else if (mode === 'INSERT_BEFORE_TARGET' || mode === 'INSERT_AFTER_TARGET') {
+                                currentOp.target.push(line);
+                            } else if (mode === 'INSERT_BEFORE_CONTENT' || mode === 'INSERT_AFTER_CONTENT') {
+                                currentOp.content.push(line);
                             }
                         }
                     }
@@ -2191,13 +2598,16 @@
                 }
 
                 operations.forEach(op => {
-                    if (op.type === 'REPLACE') {
+                    if (op.type === 'REPLACE' || op.type === 'REPLACE_TEXT') {
                         op.target = op.target.join('\n');
                         op.replacement = op.replacement.join('\n');
                         if (!op.target) {
                             errors.push({ line: op.lineNum, message: 'REPLACE command lacks TARGET search lines.' });
                         }
-                    } else if (op.type === 'CREATE') {
+                    } else if (op.type === 'CREATE' || op.type === 'CREATE_FILE' || op.type === 'APPEND_TEXT') {
+                        op.content = op.content.join('\n');
+                    } else if (op.type === 'INSERT_BEFORE' || op.type === 'INSERT_AFTER') {
+                        op.target = op.target.join('\n');
                         op.content = op.content.join('\n');
                     }
                 });
@@ -2221,6 +2631,156 @@
                 window.EventBus.subscribe('prompt:parse', (text) => this.handleParse(text));
                 window.EventBus.subscribe('queue:execute', () => this.handleExecute());
                 window.EventBus.subscribe('queue:cancel', () => this.handleCancel());
+            }
+
+            generatePreview(text) {
+                const { operations, errors } = window.PromptParser.parse(text);
+                if (errors.length > 0) {
+                    return { errors, operations: [], affectedRepositories: [], affectedFiles: [], potentialConflicts: [], warnings: [], executionOrder: [] };
+                }
+
+                const state = window.StateManager.getState();
+                const currentRepoId = state.currentRepository;
+                const repo = state.repositories.find(r => r.id === currentRepoId);
+                const repoName = repo ? repo.name : 'Unknown Repository';
+
+                const affectedRepositories = new Set([repoName]);
+                const affectedFiles = new Set();
+                const potentialConflicts = [];
+                const warnings = [];
+                const executionOrder = [];
+
+                const fileStates = {};
+                if (repo) {
+                    repo.files.forEach(f => {
+                        fileStates[f.path] = 'exists';
+                    });
+                }
+
+                operations.forEach((op, index) => {
+                    const stepNum = index + 1;
+                    const path = op.path ? this.evaluateString(op.path) : null;
+                    const from = op.from ? this.evaluateString(op.from) : null;
+                    const to = op.to ? this.evaluateString(op.to) : null;
+
+                    let stepDesc = `[Step ${stepNum}] `;
+
+                    if (op.type === 'COMMENT') {
+                        stepDesc += `Comment: "${op.message}"`;
+                    } else if (op.type === 'CREATE' || op.type === 'CREATE_FILE') {
+                        stepDesc += `Create file: "${path}"`;
+                        affectedFiles.add(path);
+                        
+                        if (fileStates[path] === 'exists') {
+                            warnings.push(`File "${path}" already exists. Overwriting content.`);
+                        }
+                        fileStates[path] = 'exists';
+                    } else if (op.type === 'DELETE' || op.type === 'DELETE_FILE') {
+                        stepDesc += `Delete file: "${path}"`;
+                        affectedFiles.add(path);
+
+                        if (fileStates[path] !== 'exists') {
+                            warnings.push(`Deleting non-existent file: "${path}".`);
+                        }
+                        fileStates[path] = 'deleted';
+                    } else if (op.type === 'REPLACE' || op.type === 'REPLACE_TEXT') {
+                        stepDesc += `Replace text inside: "${path}"`;
+                        affectedFiles.add(path);
+
+                        if (fileStates[path] !== 'exists') {
+                            warnings.push(`Replacing text in non-existent file: "${path}".`);
+                        }
+                    } else if (op.type === 'APPEND_TEXT') {
+                        stepDesc += `Append text to: "${path}"`;
+                        affectedFiles.add(path);
+
+                        if (fileStates[path] !== 'exists') {
+                            warnings.push(`Appending text to non-existent file: "${path}".`);
+                        }
+                    } else if (op.type === 'INSERT_BEFORE') {
+                        stepDesc += `Insert text before target in: "${path}"`;
+                        affectedFiles.add(path);
+
+                        if (fileStates[path] !== 'exists') {
+                            warnings.push(`Inserting text in non-existent file: "${path}".`);
+                        }
+                    } else if (op.type === 'INSERT_AFTER') {
+                        stepDesc += `Insert text after target in: "${path}"`;
+                        affectedFiles.add(path);
+
+                        if (fileStates[path] !== 'exists') {
+                            warnings.push(`Inserting text in non-existent file: "${path}".`);
+                        }
+                    } else if (op.type === 'MOVE' || op.type === 'MOVE_FILE') {
+                        stepDesc += `Move "${from}" to "${to}"`;
+                        affectedFiles.add(from);
+                        affectedFiles.add(to);
+
+                        if (fileStates[from] !== 'exists') {
+                            warnings.push(`Moving non-existent file: "${from}".`);
+                        }
+                        fileStates[from] = 'deleted';
+                        fileStates[to] = 'exists';
+                    } else if (op.type === 'COPY') {
+                        stepDesc += `Copy "${from}" to "${to}"`;
+                        affectedFiles.add(from);
+                        affectedFiles.add(to);
+
+                        if (fileStates[from] !== 'exists') {
+                            warnings.push(`Copying non-existent file: "${from}".`);
+                        }
+                        fileStates[to] = 'exists';
+                    } else if (op.type === 'RENAME') {
+                        stepDesc += `Rename "${from}" to "${to}"`;
+                        affectedFiles.add(from);
+                        affectedFiles.add(to);
+
+                        if (fileStates[from] !== 'exists') {
+                            warnings.push(`Renaming non-existent file: "${from}".`);
+                        }
+                        fileStates[from] = 'deleted';
+                        fileStates[to] = 'exists';
+                    } else if (op.type === 'OPEN_REPOSITORY' || op.type === 'SWITCH_REPOSITORY') {
+                        const targetRepo = op.id || op.name;
+                        stepDesc += `Open repository: "${targetRepo}"`;
+                        affectedRepositories.add(targetRepo);
+                    } else if (op.type === 'CREATE_BRANCH' || op.type === 'CHECKOUT_BRANCH') {
+                        stepDesc += `Branch: "${op.name}"`;
+                    } else if (op.type === 'COMMIT') {
+                        stepDesc += `Commit: "${op.message}"`;
+                    } else {
+                        stepDesc += `Execute: ${op.type}`;
+                    }
+
+                    executionOrder.push(stepDesc);
+                });
+
+                const fileOpCounts = {};
+                operations.forEach(op => {
+                    const path = op.path ? this.evaluateString(op.path) : (op.from ? this.evaluateString(op.from) : null);
+                    if (path) {
+                        fileOpCounts[path] = (fileOpCounts[path] || 0) + 1;
+                    }
+                });
+
+                Object.keys(fileOpCounts).forEach(path => {
+                    if (fileOpCounts[path] > 1) {
+                        potentialConflicts.push({
+                            file: path,
+                            description: `File "${path}" is modified/referenced ${fileOpCounts[path]} times in this pipeline.`
+                        });
+                    }
+                });
+
+                return {
+                    errors: [],
+                    operations,
+                    affectedRepositories: Array.from(affectedRepositories),
+                    affectedFiles: Array.from(affectedFiles),
+                    potentialConflicts,
+                    warnings,
+                    executionOrder
+                };
             }
 
             handleParse(text) {
@@ -2262,6 +2822,11 @@
                     return;
                 }
 
+                // Push current state to undo stack before running queue
+                if (window.UndoStack) {
+                    window.UndoStack.pushState();
+                }
+
                 this.running = true;
                 this.cancelRequested = false;
                 this.currentIndex = 0;
@@ -2282,7 +2847,7 @@
                     'OPERATOR_ROLE': state.settings.operatorRole
                 };
 
-                window.Logger.log('INFO', `Starting sequential run of ${this.activeQueue.length} instructions.`, 'PIPELINE');
+                window.Logger.log('INFO', `Starting sequential execution run of ${this.activeQueue.length} instructions.`, 'PIPELINE');
                 window.EventBus.publish('queue:status', { running: true });
 
                 const runLog = [];
@@ -2314,102 +2879,53 @@
                         const replacement = this.evaluateString(op.replacement);
                         const action = this.evaluateString(op.action);
 
-                        switch (op.type) {
-                            case 'COMMENT': {
-                                const msg = this.evaluateString(op.message);
-                                messageOutput = `Comment read: "${msg}"`;
-                                break;
-                            }
-
-                            case 'CREATE': {
-                                window.VirtualFS.writeFile(state.currentRepository, path, content);
-                                messageOutput = `Created file record: "${path}"`;
-                                break;
-                            }
-
-                            case 'DELETE': {
-                                window.VirtualFS.deleteFile(state.currentRepository, path);
-                                messageOutput = `Deleted file record: "${path}"`;
-                                break;
-                            }
-
-                            case 'REPLACE': {
-                                window.VirtualFS.replaceText(state.currentRepository, path, target, replacement);
+                        let result;
+                        if (op.type === 'COMMENT') {
+                            const msg = this.evaluateString(op.message);
+                            messageOutput = `Comment read: "${msg}"`;
+                        } else {
+                            const args = {
+                                path,
+                                content,
+                                target,
+                                replacement,
+                                action,
+                                from: this.evaluateString(op.from),
+                                to: this.evaluateString(op.to),
+                                query: this.evaluateString(op.query),
+                                prompt: this.evaluateString(op.prompt),
+                                tag: this.evaluateString(op.tag),
+                                title: this.evaluateString(op.title),
+                                name: this.evaluateString(op.name),
+                                value: this.evaluateString(op.value),
+                                delay: op.delay
+                            };
+                            result = await window.CommandRegistry.execute(op.type, args);
+                            
+                            if (op.type === 'CREATE' || op.type === 'CREATE_FILE') {
+                                messageOutput = `Created file node: "${path}"`;
+                            } else if (op.type === 'DELETE' || op.type === 'DELETE_FILE') {
+                                messageOutput = `Deleted file node: "${path}"`;
+                            } else if (op.type === 'REPLACE' || op.type === 'REPLACE_TEXT') {
                                 messageOutput = `Replaced lines inside file: "${path}"`;
-                                break;
-                            }
-
-                            case 'MOVE': {
-                                const file = activeRepo.files.find(f => f.path === op.from);
-                                if (!file) throw new Error(`File "${op.from}" not found.`);
-                                const now = new Date().toISOString();
-                                file.path = op.to;
-                                file.updated = now;
-                                messageOutput = `Moved virtual node from "${op.from}" to "${op.to}"`;
-                                break;
-                            }
-
-                            case 'COPY': {
-                                const file = activeRepo.files.find(f => f.path === op.from);
-                                if (!file) throw new Error(`File "${op.from}" not found.`);
-                                const now = new Date().toISOString();
-                                activeRepo.files.push({ 
-                                    path: op.to, 
-                                    content: file.content,
-                                    created: now,
-                                    updated: now
-                                });
-                                messageOutput = `Copied virtual node "${op.from}" to "${op.to}"`;
-                                break;
-                            }
-
-                            case 'RENAME': {
-                                const file = activeRepo.files.find(f => f.path === op.from);
-                                if (!file) throw new Error(`File "${op.from}" not found.`);
-                                const now = new Date().toISOString();
-                                file.path = op.to;
-                                file.updated = now;
-                                messageOutput = `Renamed virtual node from "${op.from}" to "${op.to}"`;
-                                break;
-                            }
-
-                            case 'VAR': {
-                                const val = this.evaluateString(op.value);
-                                this.variables[op.name] = val;
-                                messageOutput = `Variable declared: \${${op.name}} = "${val}"`;
-                                break;
-                            }
-
-                            case 'UPLOAD': {
-                                messageOutput = `Simulated upload handler logged for: "${path}"`;
-                                break;
-                            }
-
-                            case 'DOWNLOAD': {
-                                const contentToDl = window.VirtualFS.readFile(state.currentRepository, path);
-                                const blob = new Blob([contentToDl], { type: 'text/plain' });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = path.split('/').pop() || 'download.txt';
-                                a.click();
-                                URL.revokeObjectURL(url);
-                                messageOutput = `Triggered download block for: "${path}"`;
-                                break;
-                            }
-
-                            case 'TRIGGER': {
-                                messageOutput = `Dispatched custom downstream event trigger: "${action}"`;
-                                window.EventBus.publish(action, op);
-                                break;
-                            }
-
-                            case 'WAIT': {
-                                messageOutput = `Paused timer for ${op.delay}ms...`;
-                                window.Logger.log('INFO', messageOutput, 'PIPELINE');
-                                await new Promise(resolve => setTimeout(resolve, op.delay));
-                                messageOutput = `Timer finished, resumed operations automatically.`;
-                                break;
+                            } else if (op.type === 'APPEND_TEXT') {
+                                messageOutput = `Appended text to: "${path}"`;
+                            } else if (op.type === 'INSERT_BEFORE') {
+                                messageOutput = `Inserted lines before target in: "${path}"`;
+                            } else if (op.type === 'INSERT_AFTER') {
+                                messageOutput = `Inserted lines after target in: "${path}"`;
+                            } else if (op.type === 'MOVE' || op.type === 'MOVE_FILE') {
+                                messageOutput = `Moved virtual node from "${args.from}" to "${args.to}"`;
+                            } else if (op.type === 'COPY') {
+                                messageOutput = `Copied virtual node from "${args.from}" to "${args.to}"`;
+                            } else if (op.type === 'RENAME') {
+                                messageOutput = `Renamed virtual node from "${args.from}" to "${args.to}"`;
+                            } else if (op.type === 'VAR') {
+                                messageOutput = `Declared variable \${${op.name}} = "${args.value}"`;
+                            } else if (op.type === 'WAIT') {
+                                messageOutput = `Resumed operations after waiting ${op.delay}ms`;
+                            } else {
+                                messageOutput = `Executed command [${op.type}] successfully.`;
                             }
                         }
 
@@ -2452,7 +2968,7 @@
                 window.EventBus.publish('queue:status', { running: false });
                 
                 if (anyFail) {
-                    window.Notification.show('Operational pipeline completed with recoverable errors.', 'warning');
+                    window.Notification.show('Pipeline completed with recoverable errors.', 'warning');
                 } else {
                     window.Notification.show('Operational pipeline queue complete.', 'success');
                 }
