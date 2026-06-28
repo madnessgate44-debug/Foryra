@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Mission Runner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #07090e;
+            --bg-secondary: #0c0f16;
+            --bg-surface: #121622;
+            --border-color: #242c42;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #4e5d78;
+            --color-accent: #3d8bff;
+            --color-accent-hover: #2563eb;
+            --color-accent-alpha: rgba(61,139,255,0.12);
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-ai: #8b5cf6;
+            --color-ai-hover: #7c3aed;
+            --color-github: #24292e;
+            --color-github-hover: #1a1e23;
+            --shadow-lg: 0 12px 32px rgba(0,0,0,0.6);
+            --sidebar-width: 240px;
+            --topbar-height: 52px;
+            --statusbar-height: 28px;
+        }
+        .theme-light {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-surface: #ffffff;
+            --border-color: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --color-accent: #2563eb;
+            --color-accent-hover: #1d4ed8;
+            --color-accent-alpha: rgba(37,99,235,0.08);
+            --color-ai: #7c3aed;
+            --color-ai-hover: #6d28d9;
+            --color-github: #24292e;
+            --color-github-hover: #1a1e23;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: var(--bg-primary); color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.5; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300; display: inline-block; vertical-align: middle; user-select: none; }
+        button, input, textarea, select { font-family: inherit; font-size: inherit; color: inherit; outline: none; }
+        .monospace { font-family: 'JetBrains Mono', monospace; }
+
+        .shell { display: grid; grid-template-columns: var(--sidebar-width) 1fr; grid-template-rows: var(--topbar-height) 1fr var(--statusbar-height); width: 100vw; height: 100vh; overflow: hidden; }
+        .sidebar { grid-column: 1; grid-row: 1/4; background: var(--bg-secondary); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow: hidden; z-index: 100; }
+        .sidebar-header { height: var(--topbar-height); display: flex; align-items: center; padding: 0 14px; border-bottom: 1px solid var(--border-color); gap: 10px; }
+        .sidebar-logo { font-size: 22px; color: var(--color-accent); }
+        .sidebar-title { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.08em; background: linear-gradient(135deg, var(--text-primary), var(--color-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-repo { padding: 6px 14px; border-bottom: 1px solid var(--border-color); }
+        .repo-select { width: 100%; height: 30px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); padding: 0 8px; font-size: 0.75rem; cursor: pointer; color: var(--text-primary); }
+        .repo-actions { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+        .btn-sm { height: 22px; border-radius: 4px; border: none; padding: 0 8px; font-size: 0.6rem; font-weight: 600; cursor: pointer; transition: 0.15s; display: inline-flex; align-items: center; gap: 3px; }
+        .btn-sm-primary { background: var(--color-accent); color: #fff; }
+        .btn-sm-primary:hover { background: var(--color-accent-hover); }
+        .btn-sm-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .btn-sm-outline:hover { background: var(--color-accent-alpha); border-color: var(--color-accent); }
+        .btn-sm-github { background: var(--color-github); color: #fff; }
+        .btn-sm-github:hover { background: var(--color-github-hover); }
+        .btn-sm-success { background: var(--color-success); color: #fff; }
+        .btn-sm-success:hover { background: #0d9e6e; }
+        .btn-sm-danger { background: var(--color-danger); color: #fff; }
+        .btn-sm-danger:hover { background: #d32f2f; }
+        .sidebar-nav { flex: 1; padding: 6px 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+        .nav-link { height: 34px; display: flex; align-items: center; padding: 0 12px; border-radius: 6px; color: var(--text-secondary); gap: 12px; cursor: pointer; transition: 0.15s; font-size: 0.82rem; }
+        .nav-link:hover { background: var(--color-accent-alpha); color: var(--text-primary); }
+        .nav-link.active { background: var(--color-accent); color: #fff; font-weight: 500; }
+        .sidebar-footer { padding: 6px 14px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .theme-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 4px; }
+        .theme-btn:hover { color: var(--text-primary); }
+
+        .topbar { grid-column: 2; grid-row: 1; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; padding: 0 16px; justify-content: space-between; }
+        .topbar-left { display: flex; align-items: center; gap: 10px; }
+        .menu-toggle { display: none; background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 8px; color: var(--text-primary); cursor: pointer; }
+        .system-badge { display: flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 12px; background: var(--bg-surface); border: 1px solid var(--border-color); font-size: 0.65rem; font-weight: 700; }
+        .blink { width: 6px; height: 6px; border-radius: 50%; background: var(--color-success); animation: pulse 2s infinite; }
+        .clock { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700; color: var(--color-accent); background: var(--color-accent-alpha); padding: 2px 10px; border-radius: 4px; }
+
+        .workspace { grid-column: 2; grid-row: 2; background: var(--bg-primary); overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
+        .statusbar { grid-column: 2; grid-row: 3; background: var(--bg-secondary); border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 0.65rem; color: var(--text-muted); }
+        .status-item { display: flex; align-items: center; gap: 6px; }
+
+        .screen { display: none; flex-direction: column; gap: 12px; }
+        .screen.active { display: flex; }
+
+        .prompt-area textarea { width: 100%; height: 120px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; resize: vertical; }
+        .prompt-area textarea:focus { border-color: var(--color-accent); }
+        .actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .btn { height: 32px; border-radius: 6px; border: none; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; font-weight: 600; cursor: pointer; font-size: 0.78rem; transition: 0.15s; }
+        .btn-primary { background: var(--color-accent); color: #fff; }
+        .btn-primary:hover { background: var(--color-accent-hover); }
+        .btn-success { background: var(--color-success); color: #fff; }
+        .btn-success:hover { background: #0d9e6e; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); }
+        .btn-outline:hover { background: var(--color-accent-alpha); border-color: var(--color-accent); }
+        .btn-danger { background: var(--color-danger); color: #fff; }
+        .btn-danger:hover { background: #d32f2f; }
+        .btn-ai { background: var(--color-ai); color: #fff; }
+        .btn-ai:hover { background: var(--color-ai-hover); }
+        .btn-github { background: var(--color-github); color: #fff; }
+        .btn-github:hover { background: var(--color-github-hover); }
+        .badge { font-size: 0.7rem; padding: 2px 10px; border-radius: 12px; background: var(--bg-surface); border: 1px solid var(--border-color); margin-left: auto; }
+
+        .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-height: 140px; }
+        .panel { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px; overflow-y: auto; max-height: 180px; }
+        .panel-title { font-weight: 600; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .queue-item { display: flex; justify-content: space-between; padding: 2px 6px; border-bottom: 1px solid var(--border-color); font-size: 0.72rem; font-family: 'JetBrains Mono', monospace; }
+        .q-status { font-size: 0.55rem; padding: 1px 8px; border-radius: 10px; font-weight: 600; }
+        .q-waiting { background: var(--color-warning); color: #000; }
+        .q-running { background: var(--color-accent); color: #fff; }
+        .q-completed { background: var(--color-success); color: #fff; }
+        .q-failed { background: var(--color-danger); color: #fff; }
+        .log-entry { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.68rem; }
+        .log-success { color: var(--color-success); }
+        .log-warning { color: var(--color-warning); }
+        .log-error { color: var(--color-danger); }
+        .log-info { color: var(--text-secondary); }
+
+        .file-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; min-height: 260px; }
+        .file-list { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px; overflow-y: auto; max-height: 280px; }
+        .file-row { padding: 3px 8px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.78rem; }
+        .file-row:hover { background: var(--color-accent-alpha); }
+        .file-row.active { background: var(--color-accent-alpha); color: var(--color-accent-bright); }
+        .file-editor { display: flex; flex-direction: column; gap: 6px; }
+        .file-editor textarea { flex: 1; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); padding: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; resize: vertical; min-height: 180px; }
+        .file-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        .settings-section { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+        .settings-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .settings-row input { flex: 1; min-width: 150px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); }
+        .settings-row label { font-weight: 600; font-size: 0.8rem; color: var(--text-secondary); min-width: 80px; }
+        .gh-status { font-size: 0.75rem; padding: 2px 10px; border-radius: 10px; }
+        .gh-status.connected { background: var(--color-success-alpha); color: var(--color-success); }
+        .gh-status.disconnected { background: var(--color-danger-alpha); color: var(--color-danger); }
+        .repo-list { max-height: 150px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; background: var(--bg-primary); }
+        .repo-list-item { display: flex; justify-content: space-between; padding: 4px 8px; border-bottom: 1px solid var(--border-color); font-size: 0.75rem; align-items: center; }
+        .repo-list-item:last-child { border-bottom: none; }
+
+        .toast-container { position: fixed; bottom: 40px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 6px; width: 280px; pointer-events: none; }
+        .toast { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 14px; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; pointer-events: auto; animation: slideUp 0.2s ease; }
+        .toast.exit { transform: translateY(-10px); opacity: 0; transition: 0.2s; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } }
+        @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; opacity: 0; pointer-events: none; transition: 0.2s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; transform: scale(0.95); transition: 0.2s; }
+        .modal-overlay.active .modal { transform: scale(1); }
+        .modal-head { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-close { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 20px; }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-body { padding: 16px; }
+        .modal-foot { padding: 10px 16px; border-top: 1px solid var(--border-color); background: var(--bg-secondary); display: flex; justify-content: flex-end; gap: 8px; }
+        .modal-input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); }
+
+        @media (max-width: 768px) {
+            .shell { grid-template-columns: 1fr; }
+            .sidebar { position: fixed; inset: 0; width: 260px !important; transform: translateX(-100%); transition: 0.2s; z-index: 100; }
+            .sidebar.open { transform: translateX(0); }
+            .menu-toggle { display: block; }
+            .topbar { grid-column: 1; }
+            .workspace { grid-column: 1; padding: 10px; }
+            .statusbar { grid-column: 1; }
+            .panels { grid-template-columns: 1fr; }
+            .file-grid { grid-template-columns: 1fr; }
+            .toast-container { left: 16px; right: 16px; width: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="shell" id="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="material-symbols-outlined sidebar-logo">explore</span>
+            <span class="sidebar-title">MISSION</span>
+        </div>
+        <div class="sidebar-repo">
+            <select class="repo-select" id="repoSelect"></select>
+            <div class="repo-actions">
+                <button class="btn-sm btn-sm-outline" id="btnRefreshRepos">🔄 Refresh</button>
+                <button class="btn-sm btn-sm-github" id="btnGitHubStatus">🔗 GitHub</button>
+                <button class="btn-sm btn-sm-success" id="btnPushToGitHub">⬆ Push</button>
+                <button class="btn-sm btn-sm-primary" id="btnNewRepo">➕ New</button>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-link active" data-screen="mission">🚀 Mission</div>
+            <div class="nav-link" data-screen="files">📁 Files</div>
+            <div class="nav-link" data-screen="settings">⚙️ Settings</div>
+        </nav>
+        <div class="sidebar-footer">
+            <span style="font-size:0.6rem;color:var(--text-muted)" id="versionTag">v3.0</span>
+            <button class="theme-btn" id="themeToggle">🌓</button>
+        </div>
+    </aside>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <span class="system-badge"><span class="blink"></span> ONLINE</span>
+            <span id="repoName" style="font-weight:600;font-size:0.82rem;">Default</span>
+            <span id="repoTypeBadge" style="font-size:0.55rem;padding:1px 8px;border-radius:10px;background:var(--color-accent-alpha);color:var(--color-accent-bright);">local</span>
+        </div>
+        <div class="clock" id="clock">00:00:00</div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <main class="workspace">
+        <!-- MISSION SCREEN -->
+        <div class="screen active" id="screen-mission">
+            <div>
+                <h2 style="font-size:1.2rem;">🚀 Mission Center</h2>
+                <p style="color:var(--text-secondary);font-size:0.8rem;">Select a repo above → paste instructions → AI Parse → Execute.</p>
+            </div>
+            <div class="prompt-area">
+                <textarea id="promptInput" placeholder="Paste any text with instructions. The app will extract files and commands automatically."></textarea>
+                <div class="actions">
+                    <button class="btn btn-ai" id="btnAIParse">🤖 AI Parse</button>
+                    <button class="btn btn-success" id="btnExecute">▶ Execute</button>
+                    <button class="btn btn-outline" id="btnClear">Clear</button>
+                    <button class="btn btn-outline" id="btnUndo">↩ Undo</button>
+                    <span class="badge" id="statusBadge">Idle</span>
+                </div>
+            </div>
+            <div class="panels">
+                <div class="panel">
+                    <div class="panel-title">Queue</div>
+                    <div id="queueList"><div style="color:var(--text-muted);text-align:center;padding:16px;font-size:0.7rem;">Empty</div></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">Log</div>
+                    <div id="logList"><div style="color:var(--text-muted);text-align:center;padding:16px;font-size:0.7rem;">Ready</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FILES SCREEN -->
+        <div class="screen" id="screen-files">
+            <div>
+                <h2 style="font-size:1.2rem;">📁 Files</h2>
+                <p style="color:var(--text-secondary);font-size:0.8rem;">All files in the selected repo.</p>
+            </div>
+            <div class="file-grid">
+                <div class="file-list" id="fileTree"><div style="color:var(--text-muted);text-align:center;padding:16px;font-size:0.7rem;">No files</div></div>
+                <div class="file-editor">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span id="activeFileName" style="font-weight:600;font-size:0.8rem;">Select a file</span>
+                        <button class="btn btn-outline" id="btnNewFile" style="padding:0 10px;height:26px;font-size:0.65rem;">+ New</button>
+                    </div>
+                    <textarea id="fileEditor" placeholder="File content..."></textarea>
+                    <div class="file-actions">
+                        <button class="btn btn-success" id="btnSaveFile">Save</button>
+                        <button class="btn btn-danger" id="btnDeleteFile">Delete</button>
+                        <button class="btn btn-outline" id="btnRenameFile">Rename</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS SCREEN -->
+        <div class="screen" id="screen-settings">
+            <div>
+                <h2 style="font-size:1.2rem;">⚙️ Settings</h2>
+                <p style="color:var(--text-secondary);font-size:0.8rem;">GitHub token and app preferences.</p>
+            </div>
+            <div class="settings-section">
+                <h3 style="font-size:0.95rem;">🔗 GitHub Personal Access Token</h3>
+                <p style="color:var(--text-secondary);font-size:0.75rem;">Generate at <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--color-accent);">GitHub Settings → Tokens</a> with <code>repo</code> scope.</p>
+                <div class="settings-row">
+                    <input type="password" id="githubTokenInput" placeholder="ghp_xxxxxxxxxxxx" style="flex:2;">
+                    <button class="btn btn-primary" id="btnSaveToken">Save</button>
+                    <button class="btn btn-outline" id="btnTestToken">Test</button>
+                </div>
+                <div id="githubStatusDisplay">
+                    <span class="gh-status disconnected" id="ghStatusLabel">● Disconnected</span>
+                    <span id="githubUserInfo" style="color:var(--text-muted);margin-left:8px;font-size:0.75rem;"></span>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3 style="font-size:0.95rem;">📦 GitHub Repositories</h3>
+                <div class="settings-row">
+                    <button class="btn btn-github" id="btnFetchGitHubRepos">📥 Fetch Repos</button>
+                    <button class="btn btn-success" id="btnCreateGitHubRepo">➕ Create Repo</button>
+                    <button class="btn btn-danger" id="btnDeleteGitHubRepo">🗑 Delete Repo</button>
+                </div>
+                <div class="repo-list" id="githubRepoList">
+                    <div style="color:var(--text-muted);font-size:0.75rem;text-align:center;padding:12px;">Click "Fetch Repos" to load your repositories.</div>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3 style="font-size:0.95rem;color:var(--color-danger);">⚠️ Hazard Center</h3>
+                <p style="color:var(--text-secondary);font-size:0.75rem;">Wipe all local data and reset the app.</p>
+                <button class="btn btn-danger" id="btnPurgeStorage">🗑 Purge All Data</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- STATUSBAR -->
+    <footer class="statusbar">
+        <div class="status-item"><span class="status-dot" style="width:6px;height:6px;border-radius:50%;background:var(--color-success);display:inline-block;"></span><span id="statusInfo">Ready</span></div>
+        <div id="statusAction">System online</div>
+    </footer>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toastDock"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-head">
+            <h3 id="modalTitle">Action</h3>
+            <button class="modal-close" id="modalClose">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-foot">
+            <button class="btn btn-outline" id="modalCancel">Cancel</button>
+            <button class="btn btn-primary" id="modalConfirm">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    // --- STORAGE ---
+    var storage = {
+        get: function(k, d) { d = (d === undefined ? null : d); try { var v = localStorage.getItem('mr_' + k); return v ? JSON.parse(v) : d; } catch(e) { return d; } },
+        set: function(k, v) { localStorage.setItem('mr_' + k, JSON.stringify(v)); },
+        remove: function(k) { localStorage.removeItem('mr_' + k); },
+        clear: function() { var keys = []; for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('mr_') === 0) keys.push(k); } keys.forEach(function(k) { localStorage.removeItem(k); }); }
+    };
+
+    // --- STATE ---
+    var defaultFiles = [{ path: 'README.md', content: '# Mission Runner\n\nWrite commands in Mission Center.' }];
+    var state = {
+        repositories: storage.get('repositories', [{ id: 'default', name: 'Default', type: 'local', files: JSON.parse(JSON.stringify(defaultFiles)) }]),
+        currentRepo: storage.get('currentRepo', 'default'),
+        queue: [],
+        status: 'idle',
+        githubToken: storage.get('githubToken', ''),
+        githubRepos: storage.get('githubRepos', []),
+        githubUser: storage.get('githubUser', null),
+        undoStack: storage.get('undoStack', [])
+    };
+
+    function getCurrentRepo() {
+        for (var i = 0; i < state.repositories.length; i++) {
+            if (state.repositories[i].id === state.currentRepo) return state.repositories[i];
+        }
+        return state.repositories[0];
+    }
+
+    function getFiles() {
+        var repo = getCurrentRepo();
+        return repo ? repo.files : [];
+    }
+
+    function getFile(path) {
+        var files = getFiles();
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].path === path) return files[i];
+        }
+        return null;
+    }
+
+    function saveState() {
+        storage.set('repositories', state.repositories);
+        storage.set('currentRepo', state.currentRepo);
+        storage.set('githubToken', state.githubToken);
+        storage.set('githubRepos', state.githubRepos);
+        storage.set('githubUser', state.githubUser);
+        storage.set('undoStack', state.undoStack);
+    }
+
+    function pushUndo() {
+        var snapshot = JSON.stringify(state.repositories);
+        state.undoStack.push(snapshot);
+        if (state.undoStack.length > 20) state.undoStack.shift();
+        saveState();
+    }
+
+    function popUndo() {
+        if (!state.undoStack.length) { toast('Nothing to undo', 'warning'); return false; }
+        var snapshot = state.undoStack.pop();
+        state.repositories = JSON.parse(snapshot);
+        saveState();
+        renderAll();
+        toast('Undo complete', 'success');
+        return true;
+    }
+
+    // --- NOTIFICATIONS ---
+    function toast(msg, type) {
+        type = type || 'info';
+        var dock = document.getElementById('toastDock');
+        if (!dock) return;
+        var el = document.createElement('div');
+        el.className = 'toast';
+        var icons = { success:'✅', warning:'⚠️', error:'❌', info:'ℹ️' };
+        el.innerHTML = '<span>' + (icons[type] || 'ℹ️') + '</span><span>' + msg + '</span>';
+        dock.appendChild(el);
+        setTimeout(function() { el.classList.add('exit'); }, 3000);
+        setTimeout(function() { el.remove(); }, 3500);
+    }
+
+    // --- MODAL ---
+    function showModal(title, bodyHTML, onConfirm) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalBody').innerHTML = bodyHTML;
+        document.getElementById('modalOverlay').classList.add('active');
+        var confirmBtn = document.getElementById('modalConfirm');
+        var newConfirm = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+        newConfirm.addEventListener('click', function() {
+            closeModal();
+            if (onConfirm) onConfirm();
+        });
+    }
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalCancel').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === e.currentTarget) closeModal();
+    });
+
+    // --- THEME ---
+    function setTheme(t) {
+        var root = document.documentElement;
+        if (t === 'light') { root.classList.add('theme-light'); } else { root.classList.remove('theme-light'); }
+        storage.set('theme', t);
+    }
+    var savedTheme = storage.get('theme', 'dark');
+    setTheme(savedTheme);
+    document.getElementById('themeToggle').addEventListener('click', function() {
+        var isLight = document.documentElement.classList.contains('theme-light');
+        setTheme(isLight ? 'dark' : 'light');
+    });
+
+    // --- CLOCK ---
+    function updateClock() {
+        var now = new Date();
+        document.getElementById('clock').textContent = now.toISOString().replace('T', ' ').slice(0, 19);
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // --- NAVIGATION ---
+    var navLinks = document.querySelectorAll('.nav-link');
+    for (var i = 0; i < navLinks.length; i++) {
+        navLinks[i].addEventListener('click', function() {
+            var links = document.querySelectorAll('.nav-link');
+            for (var j = 0; j < links.length; j++) links[j].classList.remove('active');
+            this.classList.add('active');
+            var screens = document.querySelectorAll('.screen');
+            for (var k = 0; k < screens.length; k++) screens[k].classList.remove('active');
+            var target = document.getElementById('screen-' + this.dataset.screen);
+            if (target) target.classList.add('active');
+            if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+        });
+    }
+    document.getElementById('menuToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // --- GITHUB API ---
+    function githubHeaders() {
+        var token = state.githubToken;
+        if (!token) { toast('No GitHub token set. Go to Settings.', 'warning'); return null; }
+        return { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' };
+    }
+
+    function githubFetch(url, options) {
+        options = options || {};
+        var headers = githubHeaders();
+        if (!headers) return Promise.reject(new Error('No token'));
+        options.headers = headers;
+        return fetch('https://api.github.com' + url, options)
+            .then(function(response) {
+                if (!response.ok) {
+                    return response.json().then(function(data) {
+                        throw new Error(data.message || 'GitHub API error: ' + response.status);
+                    });
+                }
+                if (response.status === 204) return null;
+                return response.json();
+            });
+    }
+
+    function testGitHubConnection() {
+        var token = state.githubToken;
+        if (!token) { toast('No token. Enter one in Settings.', 'warning'); return; }
+        toast('Testing...', 'info');
+        fetch('https://api.github.com/user', { headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' } })
+            .then(function(response) {
+                if (!response.ok) throw new Error('Invalid token (status: ' + response.status + ')');
+                return response.json();
+            })
+            .then(function(data) {
+                state.githubUser = data;
+                storage.set('githubUser', data);
+                toast('Connected as: ' + data.login, 'success');
+                updateGitHubUI();
+            })
+            .catch(function(err) { toast('Failed: ' + err.message, 'error'); });
+    }
+
+    function fetchGitHubRepos() {
+        if (!state.githubToken) { toast('Set GitHub token first in Settings.', 'warning'); return; }
+        toast('Fetching repos...', 'info');
+        githubFetch('/user/repos?per_page=100&sort=updated')
+            .then(function(repos) {
+                state.githubRepos = repos;
+                storage.set('githubRepos', repos);
+                updateGitHubUI();
+                renderRepoSelect();
+                toast('Loaded ' + repos.length + ' repos', 'success');
+            })
+            .catch(function(err) { toast('Failed: ' + err.message, 'error'); });
+    }
+
+    function cloneGitHubRepo(repoName) {
+        if (!state.githubToken) { toast('Set GitHub token first.', 'warning'); return; }
+        toast('Cloning ' + repoName + '...', 'info');
+        var repo = state.githubRepos.find(function(r) { return r.name === repoName; });
+        if (!repo) { toast('Repo not found: ' + repoName, 'error'); return; }
+
+        githubFetch('/repos/' + repo.full_name + '/contents?ref=' + repo.default_branch)
+            .then(function(contents) {
+                var files = [];
+                var promises = [];
+                var walk = function(items) {
+                    items.forEach(function(item) {
+                        if (item.type === 'file') {
+                            var p = githubFetch(item.download_url)
+                                .then(function(content) {
+                                    if (typeof content === 'string') {
+                                        files.push({ path: item.path, content: content });
+                                    } else if (content && content.content) {
+                                        var decoded = atob(content.content.replace(/\n/g, ''));
+                                        files.push({ path: item.path, content: decoded });
+                                    }
+                                });
+                            promises.push(p);
+                        } else if (item.type === 'dir') {
+                            var p = githubFetch('/repos/' + repo.full_name + '/contents/' + item.path + '?ref=' + repo.default_branch)
+                                .then(function(subItems) { if (subItems) walk(subItems); });
+                            promises.push(p);
+                        }
+                    });
+                };
+                walk(contents);
+                return Promise.all(promises).then(function() {
+                    var id = 'github_' + repo.name + '_' + Date.now();
+                    state.repositories.push({ id: id, name: repo.name, type: 'github', files: files });
+                    state.currentRepo = id;
+                    saveState();
+                    renderAll();
+                    toast('Cloned ' + files.length + ' files from ' + repo.name, 'success');
+                });
+            })
+            .catch(function(err) { toast('Clone failed: ' + err.message, 'error'); });
+    }
+
+    function pushToGitHub() {
+        var repo = getCurrentRepo();
+        if (!repo || repo.type !== 'github') { toast('Not a GitHub repo. Clone one first.', 'warning'); return; }
+        if (!state.githubToken) { toast('Set GitHub token first.', 'warning'); return; }
+
+        var ghRepo = state.githubRepos.find(function(r) { return r.name === repo.name; });
+        if (!ghRepo) { toast('GitHub repo not found in list. Refresh repos.', 'warning'); return; }
+
+        toast('Pushing to ' + repo.name + '...', 'info');
+        var promises = [];
+        repo.files.forEach(function(f) {
+            var content = btoa(unescape(encodeURIComponent(f.content)));
+            var p = githubFetch('/repos/' + ghRepo.full_name + '/contents/' + f.path, {
+                method: 'PUT',
+                body: JSON.stringify({ message: 'Update from Mission Runner', content: content, branch: ghRepo.default_branch })
+            }).then(function() { return true; }).catch(function(err) { toast('Push failed for ' + f.path + ': ' + err.message, 'error'); return false; });
+            promises.push(p);
+        });
+        Promise.all(promises).then(function(results) {
+            var success = results.filter(function(r) { return r; }).length;
+            toast('Pushed ' + success + '/' + repo.files.length + ' files', success === repo.files.length ? 'success' : 'warning');
+        });
+    }
+
+    function createGitHubRepo(name, description) {
+        if (!state.githubToken) { toast('Set GitHub token first.', 'warning'); return; }
+        githubFetch('/user/repos', {
+            method: 'POST',
+            body: JSON.stringify({ name: name, description: description || '', private: false })
+        }).then(function(repo) {
+            state.githubRepos.push(repo);
+            storage.set('githubRepos', state.githubRepos);
+            updateGitHubUI();
+            renderRepoSelect();
+            toast('Created repo: ' + repo.name, 'success');
+            cloneGitHubRepo(repo.name);
+        }).catch(function(err) { toast('Failed: ' + err.message, 'error'); });
+    }
+
+    function deleteGitHubRepo(repoName) {
+        if (!state.githubToken) { toast('Set GitHub token first.', 'warning'); return; }
+        var ghRepo = state.githubRepos.find(function(r) { return r.name === repoName; });
+        if (!ghRepo) { toast('Repo not found: ' + repoName, 'error'); return; }
+        showModal('Delete GitHub Repo', '<p>Delete <strong>' + repoName + '</strong> from GitHub? This is permanent.</p>', function() {
+            githubFetch('/repos/' + ghRepo.full_name, { method: 'DELETE' })
+                .then(function() {
+                    state.githubRepos = state.githubRepos.filter(function(r) { return r.name !== repoName; });
+                    storage.set('githubRepos', state.githubRepos);
+                    updateGitHubUI();
+                    renderRepoSelect();
+                    toast('Deleted ' + repoName, 'success');
+                })
+                .catch(function(err) { toast('Failed: ' + err.message, 'error'); });
+        });
+    }
+
+    function updateGitHubUI() {
+        var statusLabel = document.getElementById('ghStatusLabel');
+        var userInfo = document.getElementById('githubUserInfo');
+        if (state.githubUser) {
+            statusLabel.className = 'gh-status connected';
+            statusLabel.textContent = '● Connected';
+            userInfo.textContent = state.githubUser.login + ' (' + (state.githubUser.public_repos || 0) + ' repos)';
+        } else {
+            statusLabel.className = 'gh-status disconnected';
+            statusLabel.textContent = '● Disconnected';
+            userInfo.textContent = '';
+        }
+        var repoList = document.getElementById('githubRepoList');
+        if (state.githubRepos.length) {
+            repoList.innerHTML = state.githubRepos.map(function(r) {
+                return '<div class="repo-list-item"><span>' + r.name + ' (' + r.default_branch + ')</span>' +
+                    '<div><button class="btn-sm btn-sm-primary" onclick="window._cloneRepo(\'' + r.name + '\')">📥 Clone</button>' +
+                    ' <button class="btn-sm btn-sm-danger" onclick="window._deleteRepo(\'' + r.name + '\')">🗑</button></div></div>';
+            }).join('');
+        } else {
+            repoList.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;text-align:center;padding:12px;">No repos loaded. Click "Fetch Repos".</div>';
+        }
+    }
+
+    window._cloneRepo = cloneGitHubRepo;
+    window._deleteRepo = deleteGitHubRepo;
+
+    // --- FILE SYSTEM ---
+    function createFile(path, content) {
+        content = content || '';
+        var repo = getCurrentRepo();
+        if (!repo) { toast('No repository', 'error'); return false; }
+        if (getFile(path)) { toast('File exists: ' + path, 'warning'); return false; }
+        pushUndo();
+        repo.files.push({ path: path, content: content });
+        saveState();
+        renderFiles();
+        return true;
+    }
+
+    function writeFile(path, content) {
+        var repo = getCurrentRepo();
+        if (!repo) { toast('No repository', 'error'); return false; }
+        var f = getFile(path);
+        if (!f) { toast('File not found: ' + path, 'error'); return false; }
+        pushUndo();
+        f.content = content;
+        saveState();
+        return true;
+    }
+
+    function deleteFile(path) {
+        var repo = getCurrentRepo();
+        if (!repo) { toast('No repository', 'error'); return false; }
+        var idx = -1;
+        for (var i = 0; i < repo.files.length; i++) {
+            if (repo.files[i].path === path) { idx = i; break; }
+        }
+        if (idx === -1) { toast('File not found: ' + path, 'warning'); return false; }
+        pushUndo();
+        repo.files.splice(idx, 1);
+        saveState();
+        renderFiles();
+        renderEditor();
+        return true;
+    }
+
+    function renameFile(oldPath, newPath) {
+        var f = getFile(oldPath);
+        if (!f) { toast('File not found', 'error'); return false; }
+        if (getFile(newPath)) { toast('Target exists: ' + newPath, 'warning'); return false; }
+        pushUndo();
+        f.path = newPath;
+        saveState();
+        renderFiles();
+        renderEditor();
+        return true;
+    }
+
+    // --- AI PROMPT PARSER ---
+    function parseAIPrompt(text) {
+        var ops = [];
+        var lines = text.split('\n');
+        var currentFile = null;
+        var currentContent = [];
+        var inCodeBlock = false;
+
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+
+            var codeMatch = line.match(/^```(\w+)(?:\s*:\s*([^\s]+))?/);
+            if (codeMatch) {
+                inCodeBlock = true;
+                var fileName = codeMatch[2] || 'file.' + codeMatch[1];
+                if (currentFile) {
+                    ops.push({ command: 'CREATE', args: { path: currentFile, content: currentContent.join('\n') } });
+                    currentContent = [];
+                }
+                currentFile = fileName;
+                continue;
+            }
+            if (inCodeBlock && line.trim() === '```') {
+                inCodeBlock = false;
+                if (currentFile) {
+                    ops.push({ command: 'CREATE', args: { path: currentFile, content: currentContent.join('\n') } });
+                    currentContent = [];
+                    currentFile = null;
+                }
+                continue;
+            }
+            if (inCodeBlock && currentFile) { currentContent.push(line); continue; }
+
+            var cmdMatch = line.match(/^(CREATE|EDIT|DELETE|RENAME|REPLACE|COMMIT|WAIT|COMMENT):\s*(.*)/);
+            if (cmdMatch) {
+                if (currentFile) {
+                    ops.push({ command: 'CREATE', args: { path: currentFile, content: currentContent.join('\n') } });
+                    currentContent = [];
+                    currentFile = null;
+                }
+                var cmd = cmdMatch[1];
+                var arg = cmdMatch[2];
+                var op = { command: cmd, args: {} };
+                if (cmd === 'CREATE' || cmd === 'EDIT' || cmd === 'DELETE') op.args.path = arg;
+                else if (cmd === 'RENAME') {
+                    var parts = arg.split('->').map(function(p) { return p.trim(); });
+                    op.args.from = parts[0] || '';
+                    op.args.to = parts[1] || '';
+                }
+                else if (cmd === 'REPLACE') {
+                    op.args.path = arg;
+                    op.args.target = [];
+                    op.args.replacement = [];
+                    var j = i + 1;
+                    while (j < lines.length) {
+                        var nextLine = lines[j].trim();
+                        if (nextLine.indexOf('TARGET:') === 0) { op.args.target.push(nextLine.substring(7).trim()); }
+                        else if (nextLine.indexOf('REPLACEMENT:') === 0) { op.args.replacement.push(nextLine.substring(12).trim()); }
+                        else if (nextLine === 'END' || nextLine === 'END:' || nextLine.indexOf('CREATE:') === 0 || nextLine.indexOf('EDIT:') === 0 || nextLine.indexOf('DELETE:') === 0) { break; }
+                        j++;
+                    }
+                    op.args.target = op.args.target.join('\n');
+                    op.args.replacement = op.args.replacement.join('\n');
+                }
+                else if (cmd === 'COMMIT') op.args.message = arg;
+                else if (cmd === 'WAIT') op.args.delay = parseInt(arg) || 1000;
+                else if (cmd === 'COMMENT') op.args.message = arg;
+                ops.push(op);
+                continue;
+            }
+
+            var fileMention = line.match(/create\s+['"]?([^\s'"]+\.\w+)['"]?\s*(?:file|with)?/i);
+            if (fileMention && !currentFile) {
+                var fileName = fileMention[1];
+                var contentLines = [];
+                var k = i + 1;
+                while (k < lines.length) {
+                    var nextLine = lines[k].trim();
+                    if (!nextLine || nextLine.match(/^(CREATE|EDIT|DELETE|RENAME|COMMIT|WAIT|COMMENT):/i)) break;
+                    if (nextLine === 'END' || nextLine === 'END:') break;
+                    contentLines.push(lines[k]);
+                    k++;
+                }
+                if (contentLines.length > 0) {
+                    ops.push({ command: 'CREATE', args: { path: fileName, content: contentLines.join('\n') } });
+                }
+                continue;
+            }
+
+            var updateMatch = line.match(/update\s+['"]?([^\s'"]+\.\w+)['"]?\s*(?:to|with)?/i);
+            if (updateMatch) {
+                var updateFile = updateMatch[1];
+                var updateLines = [];
+                var u = i + 1;
+                while (u < lines.length) {
+                    var nextLine = lines[u].trim();
+                    if (!nextLine || nextLine.match(/^(CREATE|EDIT|DELETE|RENAME|COMMIT|WAIT|COMMENT):/i)) break;
+                    if (nextLine === 'END' || nextLine === 'END:') break;
+                    updateLines.push(lines[u]);
+                    u++;
+                }
+                if (updateLines.length > 0) {
+                    ops.push({ command: 'REPLACE', args: { path: updateFile, target: '', replacement: updateLines.join('\n') } });
+                }
+            }
+        }
+
+        if (currentFile && currentContent.length > 0) {
+            ops.push({ command: 'CREATE', args: { path: currentFile, content: currentContent.join('\n') } });
+        }
+
+        var merged = {};
+        for (var m = 0; m < ops.length; m++) {
+            var op = ops[m];
+            if (op.command === 'CREATE' && op.args.path) {
+                var key = op.args.path;
+                if (!merged[key]) merged[key] = { command: 'CREATE', args: { path: key, content: '' } };
+                merged[key].args.content += (merged[key].args.content ? '\n' : '') + op.args.content;
+            } else {
+                merged['cmd_' + m] = op;
+            }
+        }
+        var result = [];
+        for (var key in merged) { result.push(merged[key]); }
+        for (var r = 0; r < result.length; r++) { result[r].status = 'waiting'; }
+        return result;
+    }
+
+    // --- COMMAND EXECUTOR ---
+    function executeOp(op) {
+        switch (op.command) {
+            case 'CREATE':
+            case 'EDIT':
+                return createFile(op.args.path, op.args.content || '');
+            case 'DELETE':
+                return deleteFile(op.args.path);
+            case 'RENAME':
+                return renameFile(op.args.from, op.args.to);
+            case 'REPLACE': {
+                var rf = getFile(op.args.path);
+                if (!rf) { toast('File not found: ' + op.args.path, 'error'); return false; }
+                if (op.args.target && rf.content.indexOf(op.args.target) === -1) {
+                    toast('Target not found in ' + op.args.path + ' — replacing entire file', 'warning');
+                }
+                if (op.args.target) {
+                    rf.content = rf.content.replace(op.args.target, op.args.replacement || '');
+                } else {
+                    rf.content = op.args.replacement || '';
+                }
+                saveState();
+                renderFiles();
+                renderEditor();
+                return true;
+            }
+            case 'COMMIT':
+                toast('Committed: ' + (op.args.message || 'update'), 'success');
+                return true;
+            case 'WAIT':
+                return new Promise(function(resolve) {
+                    setTimeout(resolve, op.args.delay || 1000);
+                });
+            case 'COMMENT':
+                return true;
+            default:
+                toast('Unknown command: ' + op.command, 'warning');
+                return false;
+        }
+    }
+
+    // --- UI RENDERING ---
+    function renderFiles() {
+        var files = getFiles();
+        var container = document.getElementById('fileTree');
+        if (!files.length) {
+            container.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:0.7rem;">No files</div>';
+            return;
+        }
+        var html = '';
+        var activePath = storage.get('activePath', files[0] ? files[0].path : '');
+        for (var i = 0; i < files.length; i++) {
+            var f = files[i];
+            var active = f.path === activePath ? 'active' : '';
+            html += '<div class="file-row ' + active + '" data-path="' + f.path + '">';
+            html += '<span class="material-symbols-outlined" style="font-size:14px;">description</span>';
+            html += '<span>' + f.path + '</span>';
+            html += '</div>';
+        }
+        container.innerHTML = html;
+        var rows = container.querySelectorAll('.file-row');
+        for (var j = 0; j < rows.length; j++) {
+            rows[j].addEventListener('click', function() {
+                storage.set('activePath', this.dataset.path);
+                renderFiles();
+                renderEditor();
+            });
+        }
+        renderEditor();
+    }
+
+    function renderEditor() {
+        var files = getFiles();
+        var activePath = storage.get('activePath', files[0] ? files[0].path : '');
+        var f = null;
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].path === activePath) { f = files[i]; break; }
+        }
+        var ta = document.getElementById('fileEditor');
+        var label = document.getElementById('activeFileName');
+        if (!f) {
+            ta.value = '';
+            ta.disabled = true;
+            label.textContent = 'No file selected';
+            return;
+        }
+        ta.value = f.content;
+        ta.disabled = false;
+        label.textContent = f.path;
+    }
+
+    function renderQueue() {
+        var container = document.getElementById('queueList');
+        if (!state.queue.length) {
+            container.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:16px;font-size:0.7rem;">Empty</div>';
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < state.queue.length; i++) {
+            var op = state.queue[i];
+            var status = op.status || 'waiting';
+            html += '<div class="queue-item">';
+            html += '<span>#' + (i+1) + ' ' + op.command + ' ' + (op.args.path || op.args.name || '');
+            html += '</span><span class="q-status q-' + status + '">' + status + '</span>';
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    }
+
+    function addLog(msg, type) {
+        type = type || 'info';
+        var container = document.getElementById('logList');
+        var empty = container.querySelector('.empty-state');
+        if (empty) container.innerHTML = '';
+        var el = document.createElement('div');
+        el.className = 'log-entry log-' + type;
+        var now = new Date();
+        var time = now.toLocaleTimeString();
+        el.textContent = '[' + time + '] ' + msg;
+        container.appendChild(el);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function setStatus(text) {
+        document.getElementById('statusBadge').textContent = text;
+        document.getElementById('statusInfo').textContent = text;
+        state.status = text;
+    }
+
+    function renderAll() {
+        renderFiles();
+        renderQueue();
+        renderRepoSelect();
+        var repo = getCurrentRepo();
+        document.getElementById('repoName').textContent = repo ? repo.name : 'Default';
+        document.getElementById('repoTypeBadge').textContent = repo ? repo.type : 'local';
+    }
+
+    function renderRepoSelect() {
+        var sel = document.getElementById('repoSelect');
+        sel.innerHTML = '';
+
+        // Show all repositories — local first, then GitHub
+        var repos = state.repositories.slice();
+        repos.sort(function(a, b) {
+            if (a.type === 'local' && b.type === 'github') return -1;
+            if (a.type === 'github' && b.type === 'local') return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+        for (var i = 0; i < repos.length; i++) {
+            var r = repos[i];
+            var opt = document.createElement('option');
+            opt.value = r.id;
+            var icon = r.type === 'local' ? '📁' : '🐙';
+            opt.textContent = icon + ' ' + r.name + ' (' + r.type + ')';
+            if (r.id === state.currentRepo) opt.selected = true;
+            sel.appendChild(opt);
+        }
+
+        sel.addEventListener('change', function() {
+            state.currentRepo = this.value;
+            saveState();
+            renderAll();
+        });
+    }
+
+    // --- MISSION ENGINE ---
+    var running = false;
+
+    function runMission() {
+        if (running) { toast('Already running', 'warning'); return; }
+        if (!state.queue.length) { toast('Queue empty. Parse first.', 'warning'); return; }
+
+        running = true;
+        setStatus('Running');
+
+        var index = 0;
+        var total = state.queue.length;
+
+        function nextStep() {
+            if (index >= total) {
+                setStatus('Done');
+                toast('Mission complete', 'success');
+                running = false;
+                renderQueue();
+                return;
+            }
+
+            var op = state.queue[index];
+            op.status = 'running';
+            renderQueue();
+            addLog('▶ ' + op.command + ' ' + (op.args.path || ''), 'info');
+
+            try {
+                var result = executeOp(op);
+                var isPromise = result && typeof result.then === 'function';
+                if (isPromise) {
+                    result.then(function() {
+                        op.status = 'completed';
+                        addLog('✓ ' + op.command + ' success', 'success');
+                        index++;
+                        renderQueue();
+                        setTimeout(nextStep, 50);
+                    }).catch(function(e) {
+                        op.status = 'failed';
+                        addLog('✗ ' + op.command + ' error: ' + e.message, 'error');
+                        setStatus('Error');
+                        running = false;
+                        renderQueue();
+                    });
+                    return;
+                }
+                if (result) {
+                    op.status = 'completed';
+                    addLog('✓ ' + op.command + ' success', 'success');
+                } else {
+                    op.status = 'failed';
+                    addLog('✗ ' + op.command + ' failed', 'error');
+                    setStatus('Error');
+                    running = false;
+                    renderQueue();
+                    return;
+                }
+            } catch (e) {
+                op.status = 'failed';
+                addLog('✗ ' + op.command + ' error: ' + e.message, 'error');
+                setStatus('Error');
+                running = false;
+                renderQueue();
+                return;
+            }
+
+            index++;
+            renderQueue();
+            setTimeout(nextStep, 50);
+        }
+
+        nextStep();
+    }
+
+    // --- ZIP ---
+    function importZip(file) {
+        if (typeof JSZip === 'undefined') { toast('JSZip not loaded', 'error'); return; }
+        var zip = new JSZip();
+        zip.loadAsync(file).then(function(contents) {
+            var files = [];
+            var promises = [];
+            contents.forEach(function(relativePath, zipEntry) {
+                if (!zipEntry.dir) {
+                    var promise = zipEntry.async('string').then(function(content) {
+                        files.push({ path: relativePath, content: content });
+                    });
+                    promises.push(promise);
+                }
+            });
+            return Promise.all(promises).then(function() {
+                var repo = getCurrentRepo();
+                if (!repo) { toast('No repository', 'error'); return; }
+                pushUndo();
+                for (var i = 0; i < files.length; i++) {
+                    var f = files[i];
+                    var existing = getFile(f.path);
+                    if (existing) { existing.content = f.content; } else { repo.files.push(f); }
+                }
+                saveState();
+                renderFiles();
+                toast('Imported ' + files.length + ' files', 'success');
+            });
+        }).catch(function(err) { toast('Failed to import ZIP', 'error'); });
+    }
+
+    function exportZip() {
+        if (typeof JSZip === 'undefined') { toast('JSZip not loaded', 'error'); return; }
+        var files = getFiles();
+        var zip = new JSZip();
+        for (var i = 0; i < files.length; i++) { zip.file(files[i].path, files[i].content); }
+        zip.generateAsync({ type: 'blob' }).then(function(blob) {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            var repo = getCurrentRepo();
+            a.download = (repo ? repo.name : 'workspace') + '_export.zip';
+            a.click();
+            URL.revokeObjectURL(url);
+            toast('Export started', 'success');
+        });
+    }
+
+    // --- EVENT BINDINGS ---
+    document.getElementById('btnAIParse').addEventListener('click', function() {
+        var text = document.getElementById('promptInput').value;
+        if (!text.trim()) { toast('Paste AI instructions first', 'warning'); return; }
+        var ops = parseAIPrompt(text);
+        if (!ops.length) { toast('No commands extracted', 'warning'); return; }
+        state.queue = ops;
+        renderQueue();
+        addLog('AI extracted ' + ops.length + ' commands', 'info');
+        setStatus('Parsed');
+        toast('Extracted ' + ops.length + ' commands', 'success');
+    });
+
+    document.getElementById('btnExecute').addEventListener('click', runMission);
+
+    document.getElementById('btnClear').addEventListener('click', function() {
+        document.getElementById('promptInput').value = '';
+        state.queue = [];
+        renderQueue();
+        setStatus('Idle');
+        addLog('Cleared', 'info');
+    });
+
+    document.getElementById('btnUndo').addEventListener('click', popUndo);
+
+    document.getElementById('btnSaveFile').addEventListener('click', function() {
+        var files = getFiles();
+        var activePath = storage.get('activePath', files[0] ? files[0].path : '');
+        var f = null;
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].path === activePath) { f = files[i]; break; }
+        }
+        if (!f) { toast('No file open', 'warning'); return; }
+        pushUndo();
+        f.content = document.getElementById('fileEditor').value;
+        saveState();
+        toast('Saved', 'success');
+    });
+
+    document.getElementById('btnDeleteFile').addEventListener('click', function() {
+        var files = getFiles();
+        var activePath = storage.get('activePath', files[0] ? files[0].path : '');
+        var f = null;
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].path === activePath) { f = files[i]; break; }
+        }
+        if (!f) { toast('No file open', 'warning'); return; }
+        showModal('Delete File', '<p>Delete <strong>' + f.path + '</strong>?</p>', function() {
+            deleteFile(f.path);
+            toast('Deleted', 'success');
+        });
+    });
+
+    document.getElementById('btnRenameFile').addEventListener('click', function() {
+        var files = getFiles();
+        var activePath = storage.get('activePath', files[0] ? files[0].path : '');
+        var f = null;
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].path === activePath) { f = files[i]; break; }
+        }
+        if (!f) { toast('No file open', 'warning'); return; }
+        showModal('Rename File', '<input type="text" id="renameInput" class="modal-input" value="' + f.path + '">', function() {
+            var newPath = document.getElementById('renameInput').value.trim();
+            if (!newPath) { toast('Enter a path', 'warning'); return; }
+            renameFile(f.path, newPath);
+            toast('Renamed', 'success');
+        });
+    });
+
+    document.getElementById('btnNewFile').addEventListener('click', function() {
+        showModal('New File', '<input type="text" id="newFileInput" class="modal-input" placeholder="path/to/file.js">', function() {
+            var path = document.getElementById('newFileInput').value.trim();
+            if (!path) { toast('Enter a path', 'warning'); return; }
+            if (createFile(path, '')) {
+                storage.set('activePath', path);
+                renderFiles();
+                renderEditor();
+                toast('Created ' + path, 'success');
+            }
+        });
+    });
+
+    document.getElementById('btnNewRepo').addEventListener('click', function() {
+        showModal('New Local Repository', '<input type="text" id="newRepoName" class="modal-input" placeholder="Repository name">', function() {
+            var name = document.getElementById('newRepoName').value.trim();
+            if (!name) { toast('Enter a name', 'warning'); return; }
+            var id = 'repo_' + Date.now();
+            state.repositories.push({ id: id, name: name, type: 'local', files: [{ path: 'README.md', content: '# ' + name + '\n\nNew repository.' }] });
+            state.currentRepo = id;
+            saveState();
+            renderAll();
+            toast('Created "' + name + '"', 'success');
+        });
+    });
+
+    // Import/Export ZIP buttons
+    var importBtn = document.createElement('button');
+    importBtn.className = 'btn btn-outline';
+    importBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;">upload</span> Import ZIP';
+    importBtn.addEventListener('click', function() {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.zip';
+        input.onchange = function(e) {
+            if (e.target.files[0]) importZip(e.target.files[0]);
+            input.remove();
+        };
+        input.click();
+    });
+    document.querySelector('.actions').appendChild(importBtn);
+
+    var exportBtn = document.createElement('button');
+    exportBtn.className = 'btn btn-outline';
+    exportBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;">download</span> Export ZIP';
+    exportBtn.addEventListener('click', exportZip);
+    document.querySelector('.actions').appendChild(exportBtn);
+
+    // GitHub buttons
+    document.getElementById('btnSaveToken').addEventListener('click', function() {
+        var token = document.getElementById('githubTokenInput').value.trim();
+        if (!token) { toast('Enter a token', 'warning'); return; }
+        state.githubToken = token;
+        saveState();
+        toast('Token saved', 'success');
+        testGitHubConnection();
+    });
+
+    document.getElementById('btnTestToken').addEventListener('click', testGitHubConnection);
+
+    document.getElementById('btnFetchGitHubRepos').addEventListener('click', fetchGitHubRepos);
+
+    document.getElementById('btnCreateGitHubRepo').addEventListener('click', function() {
+        showModal('Create GitHub Repo',
+            '<input type="text" id="newGhRepoName" class="modal-input" placeholder="Repository name" style="margin-bottom:8px;">' +
+            '<input type="text" id="newGhRepoDesc" class="modal-input" placeholder="Description (optional)">',
+            function() {
+                var name = document.getElementById('newGhRepoName').value.trim();
+                if (!name) { toast('Enter a name', 'warning'); return; }
+                var desc = document.getElementById('newGhRepoDesc').value.trim();
+                createGitHubRepo(name, desc);
+            }
+        );
+    });
+
+    document.getElementById('btnDeleteGitHubRepo').addEventListener('click', function() {
+        if (!state.githubRepos.length) { toast('No GitHub repos loaded. Fetch first.', 'warning'); return; }
+        var options = state.githubRepos.map(function(r) { return '<option value="' + r.name + '">' + r.name + '</option>'; }).join('');
+        showModal('Delete GitHub Repo',
+            '<select id="ghRepoDeleteSelect" class="modal-input">' + options + '</select>',
+            function() {
+                var name = document.getElementById('ghRepoDeleteSelect').value;
+                deleteGitHubRepo(name);
+            }
+        );
+    });
+
+    document.getElementById('btnGitHubStatus').addEventListener('click', function() {
+        document.querySelector('[data-screen="settings"]').click();
+    });
+
+    document.getElementById('btnRefreshRepos').addEventListener('click', function() {
+        if (state.githubToken) fetchGitHubRepos();
+        renderRepoSelect();
+        toast('Refreshed', 'info');
+    });
+
+    document.getElementById('btnPushToGitHub').addEventListener('click', pushToGitHub);
+
+    document.getElementById('btnPurgeStorage').addEventListener('click', function() {
+        showModal('Purge All Data', '<p style="color:var(--color-danger);">This will delete ALL repositories, files, and settings. This cannot be undone.</p>', function() {
+            storage.clear();
+            location.reload();
+        });
+    });
+
+    // Keyboard: Ctrl+S
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            var files = getFiles();
+            var activePath = storage.get('activePath', files[0] ? files[0].path : '');
+            var f = null;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i].path === activePath) { f = files[i]; break; }
+            }
+            if (f && document.activeElement && document.activeElement.id === 'fileEditor') {
+                e.preventDefault();
+                document.getElementById('btnSaveFile').click();
+            }
+        }
+    });
+
+    // --- BOOT ---
+    function boot() {
+        if (state.githubUser) updateGitHubUI();
+        if (state.githubRepos.length) { updateGitHubUI(); renderRepoSelect(); }
+        renderAll();
+        addLog('System ready', 'info');
+        document.getElementById('promptInput').value = 'We need to update the Maserati repo. Create a config file with these settings:\n\n```json:config.json\n{\n  "model": "maserati-gt",\n  "year": 2025\n}\n```\n\nAlso update README.md to say "Maserati GT 2025 edition".';
+        toast('Mission Runner ready — select a repo, paste instructions, AI Parse, Execute.', 'success');
+        if (state.githubToken) {
+            testGitHubConnection();
+        }
+    }
+
+    boot();
+
+    window.__state = state;
+})();
+</script>
+
+</body>
+</html>
