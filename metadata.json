@@ -1,0 +1,6 @@
+{
+  "name": "Mission Runner",
+  "description": "A production-quality mission operations framework built with clean vanilla ES2023 modules.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
