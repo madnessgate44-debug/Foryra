@@ -1042,9 +1042,12 @@
                 </div>
                 
                 <!-- Top Repository Bar -->
-                <div class="top-repo-bar flex-row" id="top-repo-bar" style="margin-left: 20px; border-left: 1px solid var(--border-color); padding-left: 20px;">
+                <div class="top-repo-bar flex-row" id="top-repo-bar" style="margin-left: 20px; border-left: 1px solid var(--border-color); padding-left: 20px; gap: 12px; flex-wrap: wrap;">
                     <span class="material-symbols-outlined" style="color: var(--color-accent-bright);">database</span>
                     <span id="header-repo-name" style="font-weight: 600; font-family: 'Space Grotesk', sans-serif;">Default Sandbox</span>
+                    <span class="badge monospace" id="header-repo-branch" style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: rgba(56, 189, 248, 0.1); color: var(--color-accent-bright); border: 1px solid rgba(56, 189, 248, 0.2);">branch: main</span>
+                    <span class="badge monospace" id="header-repo-workspace" style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2);">workspace: local</span>
+                    <span class="badge monospace" id="header-repo-status" style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">status: IDLE</span>
                     <button class="quick-theme-btn" id="header-repo-pin" title="Pin Repository" style="width: 28px; height: 28px;">
                         <span class="material-symbols-outlined" style="font-size: 18px;">push_pin</span>
                     </button>
@@ -1114,20 +1117,29 @@
 
                             <div class="prompt-editor-container">
                                 <textarea class="prompt-textarea" id="main-prompt-input" placeholder="COMMENT: Enter your structured instructions here...&#10;CREATE: src/index.js&#10;// Content of the script...&#10;REPLACE: src/index.js&#10;TARGET: // target search line&#10;REPLACEMENT: // upgraded replacement line&#10;END:"></textarea>
-                                <div class="prompt-actions-row">
-                                    <button class="btn-core btn-outline" id="btn-prompt-parse" style="flex:1;">
+                                <div class="prompt-actions-row" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button class="btn-core btn-outline" id="btn-prompt-parse" style="flex:1; min-width: 80px;">
                                         <span class="material-symbols-outlined">analytics</span>
                                         <span>Parse</span>
                                     </button>
-                                    <button class="btn-core btn-primary" id="btn-prompt-execute" style="flex:1;">
+                                    <button class="btn-core btn-primary" id="btn-prompt-execute" style="flex:1; min-width: 80px;">
                                         <span class="material-symbols-outlined">play_arrow</span>
                                         <span>Execute</span>
                                     </button>
-                                    <button class="btn-core btn-outline" id="btn-prompt-clear" style="flex:1;">
+                                    <button class="btn-core btn-outline" id="btn-prompt-clear" style="flex:1; min-width: 80px;">
                                         <span class="material-symbols-outlined">clear_all</span>
                                         <span>Clear</span>
                                     </button>
-                                    <button class="btn-core btn-outline" id="btn-prompt-example" style="flex:1;" title="Load structured template directives">
+                                    <button class="btn-core btn-outline" id="btn-prompt-import" style="flex:1; min-width: 120px;" title="Import a prompt file from client storage">
+                                        <span class="material-symbols-outlined">upload_file</span>
+                                        <span>Import Text File</span>
+                                        <input type="file" id="prompt-import-file" style="display: none;" accept=".txt,.json,.md">
+                                    </button>
+                                    <button class="btn-core btn-outline" id="btn-prompt-export" style="flex:1; min-width: 120px;" title="Download active prompt buffer as a text file">
+                                        <span class="material-symbols-outlined">download</span>
+                                        <span>Export Prompt</span>
+                                    </button>
+                                    <button class="btn-core btn-outline" id="btn-prompt-example" style="flex:1; min-width: 120px;" title="Load structured template directives">
                                         <span class="material-symbols-outlined">template_class</span>
                                         <span>Load Example</span>
                                     </button>
@@ -1143,12 +1155,12 @@
                                     Execution Center
                                 </span>
                                 <div class="view-area-tabs" id="execution-panel-tabs" style="height: 32px; border-bottom: none; background: transparent; gap: 4px;">
-                                    <div class="view-tab active" data-exec-tab="queue" style="height: 32px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem;">Queue Preview</div>
-                                    <div class="view-tab" data-exec-tab="logs" style="height: 32px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem;">Execution Logs</div>
+                                    <div class="view-tab active" data-exec-tab="queue" style="height: 32px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; cursor: pointer;">Queue Preview</div>
+                                    <div class="view-tab" data-exec-tab="logs" style="height: 32px; border: 1px solid var(--border-color); border-radius: 6px; padding: 0 12px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; cursor: pointer;">Execution Logs</div>
                                 </div>
                                 <span class="monospace" style="font-size: 0.72rem; color: var(--text-muted); margin-left: auto;" id="pipeline-status-indicator">Idle</span>
                             </div>
-                            <div class="pipeline-card" id="operational-pipeline-dock" style="margin-top: 12px; height: 180px; max-height: 180px;">
+                            <div class="pipeline-card" id="operational-pipeline-dock" style="margin-top: 12px; height: 180px; max-height: 180px; overflow: hidden; display: flex; flex-direction: column;">
                                 <div class="empty-log-state" style="text-align: center; color: var(--text-muted); padding: 20px;">No parsed instructions in workspace. Ready to ingest directives.</div>
                             </div>
                         </div>
@@ -1164,34 +1176,50 @@
                                 </span>
                             </div>
                             <div class="quick-ops-grid">
+                                <button class="quick-op-btn" id="op-create-file" title="Initialize a new virtual code node">
+                                    <span class="material-symbols-outlined" style="color: #10b981;">note_add</span>
+                                    <span class="quick-op-label">Create File</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-replace-text" title="Search and replace patterns in file">
+                                    <span class="material-symbols-outlined" style="color: #f59e0b;">find_replace</span>
+                                    <span class="quick-op-label">Replace Text</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-delete-file" title="Permanently erase virtual code node">
+                                    <span class="material-symbols-outlined" style="color: #ef4444;">delete_forever</span>
+                                    <span class="quick-op-label">Delete File</span>
+                                </button>
                                 <button class="quick-op-btn" id="op-open-repo" title="Choose a working repository workspace">
                                     <span class="material-symbols-outlined" style="color: #3b82f6;">folder_open</span>
-                                    <span class="quick-op-label">Open Repo</span>
+                                    <span class="quick-op-label">Open Repository</span>
                                 </button>
                                 <button class="quick-op-btn" id="op-import-zip" title="Upload and extract ZIP file into virtual sandbox">
                                     <span class="material-symbols-outlined" style="color: #a78bfa;">inventory_2</span>
                                     <span class="quick-op-label">Import ZIP</span>
                                     <input type="file" id="import-zip-file-input" style="display: none;" accept=".zip">
                                 </button>
-                                <button class="quick-op-btn" id="op-create-file" title="Initialize a new virtual code node">
-                                    <span class="material-symbols-outlined" style="color: #10b981;">note_add</span>
-                                    <span class="quick-op-label">Create File</span>
+                                <button class="quick-op-btn" id="op-export-zip" title="Download workspace repository files as ZIP">
+                                    <span class="material-symbols-outlined" style="color: #ec4899;">download_for_offline</span>
+                                    <span class="quick-op-label">Export ZIP</span>
                                 </button>
-                                <button class="quick-op-btn" id="op-edit-file" title="Open source editor modal for virtual nodes">
-                                    <span class="material-symbols-outlined" style="color: #f59e0b;">edit_note</span>
-                                    <span class="quick-op-label">Edit File</span>
+                                <button class="quick-op-btn" id="op-save-workspace" title="Manually save current files and states to local storage">
+                                    <span class="material-symbols-outlined" style="color: #06b6d4;">save_as</span>
+                                    <span class="quick-op-label">Save Workspace</span>
                                 </button>
-                                <button class="quick-op-btn" id="op-delete-file" title="Permanently erase virtual code node">
-                                    <span class="material-symbols-outlined" style="color: #ef4444;">delete_forever</span>
-                                    <span class="quick-op-label">Delete File</span>
+                                <button class="quick-op-btn" id="op-load-workspace" title="Load or switch current virtual workspace files">
+                                    <span class="material-symbols-outlined" style="color: #14b8a6;">input</span>
+                                    <span class="quick-op-label">Load Workspace</span>
                                 </button>
-                                <button class="quick-op-btn" id="op-rename-file" title="Rename virtual file node inside repository">
-                                    <span class="material-symbols-outlined" style="color: #ec4899;">drive_file_rename_outline</span>
-                                    <span class="quick-op-label">Rename File</span>
+                                <button class="quick-op-btn" id="op-backup" title="Export full sandbox and memory JSON configuration">
+                                    <span class="material-symbols-outlined" style="color: #10b981;">archive</span>
+                                    <span class="quick-op-label">Backup</span>
                                 </button>
-                                <button class="quick-op-btn" id="op-view-files" title="Switch view to Workspace Files explorer screen">
-                                    <span class="material-symbols-outlined" style="color: #14b8a6;">visibility</span>
-                                    <span class="quick-op-label">View Files</span>
+                                <button class="quick-op-btn" id="op-restore" title="Restore system node from previously saved backup JSON">
+                                    <span class="material-symbols-outlined" style="color: #f59e0b;">unarchive</span>
+                                    <span class="quick-op-label">Restore</span>
+                                </button>
+                                <button class="quick-op-btn" id="op-git-status" title="Check virtual file revisions and untracked changes">
+                                    <span class="material-symbols-outlined" style="color: #eab308;">rule</span>
+                                    <span class="quick-op-label">Git Status</span>
                                 </button>
                                 <button class="quick-op-btn" id="op-commit" title="Synthesize complete repository state commit">
                                     <span class="material-symbols-outlined" style="color: #84cc16;">source_code</span>
@@ -1205,33 +1233,9 @@
                                     <span class="material-symbols-outlined" style="color: #3b82f6;">cloud_download</span>
                                     <span class="quick-op-label">Pull</span>
                                 </button>
-                                <button class="quick-op-btn" id="op-build" title="Compile virtual JS code and search for syntax anomalies">
-                                    <span class="material-symbols-outlined" style="color: #eab308;">construction</span>
-                                    <span class="quick-op-label">Build</span>
-                                </button>
                                 <button class="quick-op-btn" id="op-deploy" title="Deploy repository live onto sandbox edge networks">
                                     <span class="material-symbols-outlined" style="color: #f97316;">rocket_launch</span>
                                     <span class="quick-op-label">Deploy</span>
-                                </button>
-                                <button class="quick-op-btn" id="op-branch" title="Create virtual repository development branch fork">
-                                    <span class="material-symbols-outlined" style="color: #06b6d4;">fork_right</span>
-                                    <span class="quick-op-label">Branch</span>
-                                </button>
-                                <button class="quick-op-btn" id="op-history" title="View historical sequential pipeline logs list">
-                                    <span class="material-symbols-outlined" style="color: #a855f7;">history_edu</span>
-                                    <span class="quick-op-label">History</span>
-                                </button>
-                                <button class="quick-op-btn" id="op-settings" title="Adjust operator details and system parameters">
-                                    <span class="material-symbols-outlined" style="color: #6b7280;">settings_suggest</span>
-                                    <span class="quick-op-label">Settings</span>
-                                </button>
-                                <button class="quick-op-btn" id="op-backup" title="Export full sandbox and memory JSON configuration">
-                                    <span class="material-symbols-outlined" style="color: #10b981;">archive</span>
-                                    <span class="quick-op-label">Backup</span>
-                                </button>
-                                <button class="quick-op-btn" id="op-restore" title="Restore system node from previously saved backup JSON">
-                                    <span class="material-symbols-outlined" style="color: #f59e0b;">unarchive</span>
-                                    <span class="quick-op-label">Restore</span>
                                 </button>
                             </div>
                         </div>
@@ -1583,15 +1587,14 @@
                 console.log(`[${timestamp}] [${level}] [${module}] ${message}`);
                 EventBus.publish('log:new', entry);
             }
+            clear() {
+                StateManager.setState({ logs: [] });
+            }
         }
         const Logger = new LoggerService();
 
         /**
-         * 4. STATE MANAGER
-         */
-        /**
          * 4. CENTRALIZED STATE MANAGER
-         * Centralized state store that persists automatically. No global variables.
          */
         class StateManagerService {
             constructor() {
@@ -1600,14 +1603,19 @@
                         {
                             id: 'repo-sandbox',
                             name: 'Default Sandbox',
-                            description: 'Local development sandbox environment',
+                            description: 'Local virtual development workspace',
                             files: [
                                 { path: 'README.md', content: '# Welcome to Mission Runner OS\n\nThis is a complete localized virtual software repository. Type structured instruction blocks in Mode 2 and run them to automatically update files.\n' },
                                 { path: 'src/index.js', content: 'console.log("Mission Runner Operating System Booted Successfully!");\n' },
                                 { path: 'src/utils.js', content: 'export const formatCommand = (cmd) => cmd.toUpperCase();\n' }
                             ],
                             isFavorite: false,
-                            isPinned: false
+                            isPinned: false,
+                            branch: 'main',
+                            commitHistory: [
+                                { hash: 'a1b2c3d', message: 'Initial commit', timestamp: new Date().toLocaleString() }
+                            ],
+                            memory: {}
                         }
                     ]),
                     currentRepository: Storage.get('currentRepository', 'repo-sandbox'),
@@ -1623,7 +1631,8 @@
                     }),
                     workspace: Storage.get('workspace', {
                         activeFilePath: 'README.md',
-                        openFiles: ['README.md']
+                        openFiles: ['README.md'],
+                        expandedFolders: ['src']
                     }),
                     promptText: Storage.get('promptText', ''),
                     executionHistory: Storage.get('history', []),
@@ -1638,7 +1647,6 @@
             setState(updates) {
                 Object.assign(this.state, updates);
                 
-                // Automatically persist specific slices of state as required
                 if ('repositories' in updates) Storage.set('repositories', this.state.repositories);
                 if ('settings' in updates) Storage.set('settings', this.state.settings);
                 if ('workspace' in updates) Storage.set('workspace', this.state.workspace);
@@ -1653,13 +1661,97 @@
         const StateManager = new StateManagerService();
 
         /**
+         * 4.5 VIRTUAL FILE SYSTEM OPERATIONS
+         */
+        class VirtualFSService {
+            createFile(repoId, path, content) {
+                const repos = [...StateManager.getState().repositories];
+                const repo = repos.find(r => r.id === repoId);
+                if (!repo) throw new Error('Repository not found.');
+                if (repo.files.some(f => f.path === path)) {
+                    throw new Error(`File "${path}" already exists.`);
+                }
+                repo.files.push({ path, content });
+                StateManager.setState({ repositories: repos });
+                Logger.log('SUCCESS', `VFS: Created file "${path}"`, 'VFS');
+                return true;
+            }
+
+            readFile(repoId, path) {
+                const repo = StateManager.getState().repositories.find(r => r.id === repoId);
+                if (!repo) throw new Error('Repository not found.');
+                const file = repo.files.find(f => f.path === path);
+                if (!file) throw new Error(`File "${path}" not found.`);
+                return file.content;
+            }
+
+            writeFile(repoId, path, content) {
+                const repos = [...StateManager.getState().repositories];
+                const repo = repos.find(r => r.id === repoId);
+                if (!repo) throw new Error('Repository not found.');
+                let file = repo.files.find(f => f.path === path);
+                if (file) {
+                    file.content = content;
+                } else {
+                    repo.files.push({ path, content });
+                }
+                StateManager.setState({ repositories: repos });
+                Logger.log('SUCCESS', `VFS: Wrote file "${path}"`, 'VFS');
+                return true;
+            }
+
+            renameFile(repoId, oldPath, newPath) {
+                const repos = [...StateManager.getState().repositories];
+                const repo = repos.find(r => r.id === repoId);
+                if (!repo) throw new Error('Repository not found.');
+                const file = repo.files.find(f => f.path === oldPath);
+                if (!file) throw new Error(`File "${oldPath}" not found.`);
+                if (repo.files.some(f => f.path === newPath)) {
+                    throw new Error(`File "${newPath}" already exists.`);
+                }
+                file.path = newPath;
+                StateManager.setState({ repositories: repos });
+                Logger.log('SUCCESS', `VFS: Renamed file "${oldPath}" to "${newPath}"`, 'VFS');
+                return true;
+            }
+
+            deleteFile(repoId, path) {
+                const repos = [...StateManager.getState().repositories];
+                const repo = repos.find(r => r.id === repoId);
+                if (!repo) throw new Error('Repository not found.');
+                const initialCount = repo.files.length;
+                repo.files = repo.files.filter(f => f.path !== path);
+                if (repo.files.length === initialCount) {
+                    throw new Error(`File "${path}" not found.`);
+                }
+                StateManager.setState({ repositories: repos });
+                Logger.log('SUCCESS', `VFS: Deleted file "${path}"`, 'VFS');
+                return true;
+            }
+
+            replaceText(repoId, path, target, replacement) {
+                const repos = [...StateManager.getState().repositories];
+                const repo = repos.find(r => r.id === repoId);
+                if (!repo) throw new Error('Repository not found.');
+                const file = repo.files.find(f => f.path === path);
+                if (!file) throw new Error(`File "${path}" not found.`);
+                if (!file.content.includes(target)) {
+                    throw new Error(`Target text to replace not found in "${path}".`);
+                }
+                file.content = file.content.replace(target, replacement);
+                StateManager.setState({ repositories: repos });
+                Logger.log('SUCCESS', `VFS: Replaced text in "${path}"`, 'VFS');
+                return true;
+            }
+        }
+        const VirtualFS = new VirtualFSService();
+
+        /**
          * 5. REPOSITORY MANAGER
-         * Performs all repository and file CRUD, favorite, pin, open operations event-driven.
          */
         class RepositoryManagerService {
             init() {
                 EventBus.subscribe('repo:create', (data) => this.create(data));
-                EventBus.subscribe('repo:rename', (data) => this.rename(data));
                 EventBus.subscribe('repo:delete', (id) => this.delete(id));
                 EventBus.subscribe('repo:favorite', (id) => this.toggleFavorite(id));
                 EventBus.subscribe('repo:pin', (id) => this.togglePin(id));
@@ -1669,7 +1761,6 @@
                 EventBus.subscribe('file:update', (data) => this.updateFile(data));
                 EventBus.subscribe('file:create', (data) => this.createFile(data));
                 EventBus.subscribe('file:delete', (data) => this.deleteFile(data));
-                EventBus.subscribe('repo:create-from-zip', (data) => this.createFromZip(data));
             }
 
             create({ name, description }) {
@@ -1683,34 +1774,17 @@
                         { path: 'README.md', content: `# ${name}\n\n${description || 'Workspace initialized successfully.'}\n` }
                     ],
                     isFavorite: false,
-                    isPinned: false
+                    isPinned: false,
+                    branch: 'main',
+                    commitHistory: [
+                        { hash: 'a1b2c3d', message: 'Initial commit', timestamp: new Date().toLocaleString() }
+                    ],
+                    memory: {}
                 };
                 const repositories = [...state.repositories, newRepo];
                 StateManager.setState({ repositories, currentRepository: id });
                 Logger.log('SUCCESS', `Created repository: "${newRepo.name}"`, 'REPOSITORY');
-            }
-
-            createFromZip({ name, files }) {
-                const state = StateManager.getState();
-                const id = 'repo-' + Math.random().toString(36).substring(2, 9);
-                const newRepo = {
-                    id,
-                    name: name || 'Unzipped Repository',
-                    description: 'Imported dynamically from client ZIP file extractor',
-                    files: files && files.length > 0 ? files : [{ path: 'README.md', content: '# Imported Project\nEmpty archive.' }],
-                    isFavorite: false,
-                    isPinned: false
-                };
-                const repositories = [...state.repositories, newRepo];
-                StateManager.setState({ repositories, currentRepository: id });
-                Logger.log('SUCCESS', `Imported ZIP repository: "${newRepo.name}" with ${newRepo.files.length} virtual file nodes.`, 'REPOSITORY');
-            }
-
-            rename({ id, newName }) {
-                const state = StateManager.getState();
-                const repositories = state.repositories.map(r => r.id === id ? { ...r, name: newName } : r);
-                StateManager.setState({ repositories });
-                Logger.log('SUCCESS', `Renamed repository ID ${id} to "${newName}"`, 'REPOSITORY');
+                return id;
             }
 
             delete(id) {
@@ -1732,14 +1806,12 @@
                 const state = StateManager.getState();
                 const repositories = state.repositories.map(r => r.id === id ? { ...r, isFavorite: !r.isFavorite } : r);
                 StateManager.setState({ repositories });
-                Logger.log('INFO', `Toggled favorite for repository ID ${id}`, 'REPOSITORY');
             }
 
             togglePin(id) {
                 const state = StateManager.getState();
                 const repositories = state.repositories.map(r => r.id === id ? { ...r, isPinned: !r.isPinned } : r);
                 StateManager.setState({ repositories });
-                Logger.log('INFO', `Toggled pin for repository ID ${id}`, 'REPOSITORY');
             }
 
             open(id) {
@@ -1752,65 +1824,84 @@
 
             updateFile({ path, content }) {
                 const state = StateManager.getState();
-                const repositories = [...state.repositories];
-                const activeRepo = repositories.find(r => r.id === state.currentRepository);
-                if (activeRepo) {
-                    const file = activeRepo.files.find(f => f.path === path);
-                    if (file) {
-                        file.content = content;
-                        StateManager.setState({ repositories });
-                    }
+                try {
+                    VirtualFS.writeFile(state.currentRepository, path, content);
+                } catch (e) {
+                    Notification.show(e.message, 'error');
                 }
             }
 
             createFile({ path }) {
                 const state = StateManager.getState();
-                const repositories = [...state.repositories];
-                const activeRepo = repositories.find(r => r.id === state.currentRepository);
-                if (activeRepo) {
-                    if (activeRepo.files.some(f => f.path === path)) {
-                        Notification.show('File already exists in this repository.', 'warning');
-                        return;
-                    }
-                    activeRepo.files.push({ path, content: `// Virtual file: ${path}\n` });
-                    StateManager.setState({ repositories });
-                    Logger.log('SUCCESS', `Created file node "${path}"`, 'REPOSITORY');
+                try {
+                    VirtualFS.createFile(state.currentRepository, path, `// Virtual file: ${path}\n`);
+                } catch (e) {
+                    Notification.show(e.message, 'error');
                 }
             }
 
             deleteFile({ path }) {
                 const state = StateManager.getState();
-                const repositories = [...state.repositories];
-                const activeRepo = repositories.find(r => r.id === state.currentRepository);
-                if (activeRepo) {
-                    activeRepo.files = activeRepo.files.filter(f => f.path !== path);
-                    StateManager.setState({ repositories });
-                    Logger.log('WARN', `Deleted file node "${path}"`, 'REPOSITORY');
+                try {
+                    VirtualFS.deleteFile(state.currentRepository, path);
+                } catch (e) {
+                    Notification.show(e.message, 'error');
                 }
+            }
+
+            gitStatus(repoId) {
+                const repo = StateManager.getState().repositories.find(r => r.id === repoId);
+                if (!repo) return null;
+                return repo.files.map(f => {
+                    return { path: f.path, status: 'TRACKED', size: f.content.length };
+                });
+            }
+
+            commit(repoId, message) {
+                const repos = [...StateManager.getState().repositories];
+                const repo = repos.find(r => r.id === repoId);
+                if (!repo) throw new Error('Repository not found.');
+                const commitObj = {
+                    hash: Math.random().toString(36).substring(2, 9),
+                    message: message || 'Update virtual workspace',
+                    timestamp: new Date().toLocaleString()
+                };
+                if (!repo.commitHistory) repo.commitHistory = [];
+                repo.commitHistory.unshift(commitObj);
+                StateManager.setState({ repositories: repos });
+                Logger.log('SUCCESS', `Committed changes with hash [${commitObj.hash}]: "${commitObj.message}"`, 'REPOSITORY');
+                return commitObj;
             }
         }
         const RepositoryManager = new RepositoryManagerService();
 
         /**
-         * 6. THEME UTILITY
+         * 6. THEME MANAGER
          */
         class ThemeManagerService {
             init() {
-                const current = StateManager.getState().settings.theme;
-                this.apply(current);
+                const state = StateManager.getState();
+                this.setTheme(state.settings.theme || 'dark');
             }
-            apply(theme) {
+            setTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                
                 const root = document.documentElement;
-                const toggler = document.getElementById('theme-toggler');
                 if (theme === 'dark') {
                     root.classList.remove('theme-light');
                     root.classList.add('theme-dark');
-                    if (toggler) toggler.querySelector('span').textContent = 'dark_mode';
                 } else {
                     root.classList.remove('theme-dark');
                     root.classList.add('theme-light');
-                    if (toggler) toggler.querySelector('span').textContent = 'light_mode';
                 }
+
+                const settings = { ...StateManager.getState().settings, theme };
+                StateManager.setState({ settings });
+                Logger.log('INFO', `Applied system visual theme: ${theme.toUpperCase()}`, 'THEME');
+            }
+            toggle() {
+                const current = StateManager.getState().settings.theme || 'dark';
+                this.setTheme(current === 'dark' ? 'light' : 'dark');
             }
         }
         const ThemeManager = new ThemeManagerService();
@@ -1822,19 +1913,23 @@
             show(message, type = 'info') {
                 const dock = document.getElementById('toast-dock');
                 if (!dock) return;
+                
                 const toast = document.createElement('div');
                 toast.className = `toast-item toast-${type}`;
-                let iconName = 'info';
-                if (type === 'success') iconName = 'check_circle';
-                if (type === 'warning') iconName = 'warning';
-                if (type === 'error') iconName = 'dangerous';
-
+                
+                let icon = 'info';
+                if (type === 'success') icon = 'check_circle';
+                if (type === 'warning') icon = 'warning';
+                if (type === 'error') icon = 'dangerous';
+                
                 toast.innerHTML = `
-                    <span class="material-symbols-outlined">${iconName}</span>
+                    <span class="material-symbols-outlined" style="font-size: 18px;">${icon}</span>
                     <div style="font-size: 0.85rem; font-weight: 500;">${message}</div>
                 `;
+                
                 dock.appendChild(toast);
-
+                setTimeout(() => toast.classList.add('active'), 10);
+                
                 setTimeout(() => {
                     toast.classList.add('exit');
                     toast.addEventListener('transitionend', () => toast.remove());
@@ -1862,7 +1957,8 @@
                         operations.push({
                             type: 'COMMENT',
                             message: line.substring(line.indexOf(':') + 1).trim(),
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         });
                     }
                     else if (trimmed.startsWith('CREATE:')) {
@@ -1875,7 +1971,8 @@
                             type: 'CREATE',
                             path,
                             content: [],
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         };
                         mode = 'CREATE';
                     }
@@ -1888,7 +1985,8 @@
                         operations.push({
                             type: 'DELETE',
                             path,
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         });
                     }
                     else if (trimmed.startsWith('REPLACE:')) {
@@ -1902,14 +2000,15 @@
                             path,
                             target: [],
                             replacement: [],
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         };
                         mode = 'REPLACE_TARGET';
                     }
                     else if (trimmed.startsWith('TARGET:')) {
                         if (currentOp && currentOp.type === 'REPLACE') {
                             mode = 'REPLACE_TARGET';
-                            const rest = trimmed.substring(7).trim();
+                            const rest = line.substring(line.indexOf('TARGET:') + 7).trim();
                             if (rest) currentOp.target.push(rest);
                         } else {
                             errors.push({ line: i + 1, message: 'TARGET: keyword must be placed inside a REPLACE block.' });
@@ -1918,7 +2017,7 @@
                     else if (trimmed.startsWith('REPLACEMENT:')) {
                         if (currentOp && currentOp.type === 'REPLACE') {
                             mode = 'REPLACE_REPLACEMENT';
-                            const rest = trimmed.substring(12).trim();
+                            const rest = line.substring(line.indexOf('REPLACEMENT:') + 12).trim();
                             if (rest) currentOp.replacement.push(rest);
                         } else {
                             errors.push({ line: i + 1, message: 'REPLACEMENT: keyword must be placed inside a REPLACE block.' });
@@ -1935,7 +2034,8 @@
                             type: 'MOVE',
                             from: parts[0],
                             to: parts[1] || '',
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         });
                     }
                     else if (trimmed.startsWith('COPY:')) {
@@ -1949,7 +2049,8 @@
                             type: 'COPY',
                             from: parts[0],
                             to: parts[1] || '',
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         });
                     }
                     else if (trimmed.startsWith('RENAME:')) {
@@ -1963,7 +2064,8 @@
                             type: 'RENAME',
                             from: parts[0],
                             to: parts[1] || '',
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         });
                     }
                     else if (trimmed.startsWith('UPLOAD:')) {
@@ -1972,7 +2074,8 @@
                         operations.push({
                             type: 'UPLOAD',
                             path,
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         });
                     }
                     else if (trimmed.startsWith('DOWNLOAD:')) {
@@ -1981,7 +2084,8 @@
                         operations.push({
                             type: 'DOWNLOAD',
                             path,
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         });
                     }
                     else if (trimmed.startsWith('TRIGGER:')) {
@@ -1990,7 +2094,8 @@
                         operations.push({
                             type: 'TRIGGER',
                             action,
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
                         });
                     }
                     else if (trimmed.startsWith('WAIT:')) {
@@ -2002,7 +2107,24 @@
                         operations.push({
                             type: 'WAIT',
                             delay: delay || 1000,
-                            lineNum: i + 1
+                            lineNum: i + 1,
+                            status: 'Queued'
+                        });
+                    }
+                    else if (trimmed.startsWith('VAR:')) {
+                        if (currentOp) { operations.push(currentOp); currentOp = null; mode = null; }
+                        const eqIdx = trimmed.indexOf('=');
+                        if (eqIdx === -1) {
+                            errors.push({ line: i + 1, message: 'VAR command expects format: VAR: name = value' });
+                        }
+                        const name = trimmed.substring(4, eqIdx).trim();
+                        const val = trimmed.substring(eqIdx + 1).trim();
+                        operations.push({
+                            type: 'VAR',
+                            name,
+                            value: val,
+                            lineNum: i + 1,
+                            status: 'Queued'
                         });
                     }
                     else if (trimmed === 'END:') {
@@ -2029,7 +2151,6 @@
                     operations.push(currentOp);
                 }
 
-                // Format final operational items
                 operations.forEach(op => {
                     if (op.type === 'REPLACE') {
                         op.target = op.target.join('\n');
@@ -2049,7 +2170,6 @@
 
         /**
          * 9. SEQUENTIAL EXECUTION QUEUE
-         * Safely converts parser output into physical, sandboxed executions with live logger streaming & cancels.
          */
         class ExecutionQueueService {
             constructor() {
@@ -2057,6 +2177,7 @@
                 this.cancelRequested = false;
                 this.activeQueue = [];
                 this.currentIndex = 0;
+                this.variables = {};
             }
 
             init() {
@@ -2085,6 +2206,15 @@
                 }
             }
 
+            evaluateString(str) {
+                if (!str) return str;
+                let evaluated = str;
+                Object.keys(this.variables).forEach(k => {
+                    evaluated = evaluated.replaceAll(`\${${k}}`, this.variables[k]);
+                });
+                return evaluated;
+            }
+
             async handleExecute() {
                 if (this.running) {
                     Notification.show('Another pipeline job is already active.', 'warning');
@@ -2099,79 +2229,82 @@
                 this.cancelRequested = false;
                 this.currentIndex = 0;
 
-                Logger.log('INFO', `Starting sequential run of ${this.activeQueue.length} instructions.`, 'PIPELINE');
-                EventBus.publish('queue:status', { running: true });
-
                 const state = StateManager.getState();
-                const repositories = [...state.repositories];
-                const activeRepo = repositories.find(r => r.id === state.currentRepository);
-
+                const activeRepo = state.repositories.find(r => r.id === state.currentRepository);
                 if (!activeRepo) {
                     this.running = false;
                     Logger.log('ERROR', 'No active virtual repository loaded.', 'PIPELINE');
-                    EventBus.publish('queue:status', { running: false });
                     return;
                 }
 
+                this.variables = {
+                    'TIMESTAMP': new Date().toLocaleString(),
+                    'REPO_NAME': activeRepo.name,
+                    'CURRENT_BRANCH': activeRepo.branch || 'main',
+                    'OPERATOR_NAME': state.settings.operatorName,
+                    'OPERATOR_ROLE': state.settings.operatorRole
+                };
+
+                Logger.log('INFO', `Starting sequential run of ${this.activeQueue.length} instructions.`, 'PIPELINE');
+                EventBus.publish('queue:status', { running: true });
+
                 const runLog = [];
+                let anyFail = false;
 
                 for (let i = 0; i < this.activeQueue.length; i++) {
                     if (this.cancelRequested) {
                         Logger.log('WARN', `Execution aborted by user at step ${i + 1}/${this.activeQueue.length}.`, 'PIPELINE');
-                        runLog.push({ type: 'ABORT', status: 'CANCELED', message: 'Job canceled by user.' });
+                        this.activeQueue[i].status = 'Skipped';
+                        runLog.push({ type: this.activeQueue[i].type, status: 'Skipped', message: 'Job canceled by user.' });
+                        for (let j = i + 1; j < this.activeQueue.length; j++) {
+                            this.activeQueue[j].status = 'Skipped';
+                        }
                         break;
                     }
 
                     this.currentIndex = i;
                     const op = this.activeQueue[i];
+                    op.status = 'Running';
+                    EventBus.publish('queue:updated', this.activeQueue);
+
                     let stepSuccess = true;
                     let messageOutput = '';
 
                     try {
+                        const path = this.evaluateString(op.path);
+                        const content = this.evaluateString(op.content);
+                        const target = this.evaluateString(op.target);
+                        const replacement = this.evaluateString(op.replacement);
+                        const action = this.evaluateString(op.action);
+
                         switch (op.type) {
-                            case 'COMMENT':
-                                messageOutput = `Comment read: "${op.message}"`;
+                            case 'COMMENT': {
+                                const msg = this.evaluateString(op.message);
+                                messageOutput = `Comment read: "${msg}"`;
                                 break;
+                            }
 
                             case 'CREATE': {
-                                const exist = activeRepo.files.find(f => f.path === op.path);
-                                if (exist) {
-                                    exist.content = op.content;
-                                } else {
-                                    activeRepo.files.push({ path: op.path, content: op.content });
-                                }
-                                messageOutput = `Created file record: "${op.path}"`;
+                                VirtualFS.writeFile(state.currentRepository, path, content);
+                                messageOutput = `Created file record: "${path}"`;
                                 break;
                             }
 
                             case 'DELETE': {
-                                const initial = activeRepo.files.length;
-                                activeRepo.files = activeRepo.files.filter(f => f.path !== op.path);
-                                if (activeRepo.files.length === initial) {
-                                    throw new Error(`File node "${op.path}" does not exist.`);
-                                }
-                                messageOutput = `Deleted file record: "${op.path}"`;
+                                VirtualFS.deleteFile(state.currentRepository, path);
+                                messageOutput = `Deleted file record: "${path}"`;
                                 break;
                             }
 
                             case 'REPLACE': {
-                                const file = activeRepo.files.find(f => f.path === op.path);
-                                if (!file) {
-                                    throw new Error(`Target file "${op.path}" not found.`);
-                                }
-                                if (!file.content.includes(op.target)) {
-                                    throw new Error(`Search string target not found inside "${op.path}".`);
-                                }
-                                file.content = file.content.replace(op.target, op.replacement);
-                                messageOutput = `Replaced lines inside file: "${op.path}"`;
+                                VirtualFS.replaceText(state.currentRepository, path, target, replacement);
+                                messageOutput = `Replaced lines inside file: "${path}"`;
                                 break;
                             }
 
                             case 'MOVE': {
                                 const file = activeRepo.files.find(f => f.path === op.from);
-                                if (!file) {
-                                    throw new Error(`File "${op.from}" not found.`);
-                                }
+                                if (!file) throw new Error(`File "${op.from}" not found.`);
                                 file.path = op.to;
                                 messageOutput = `Moved virtual node from "${op.from}" to "${op.to}"`;
                                 break;
@@ -2179,9 +2312,7 @@
 
                             case 'COPY': {
                                 const file = activeRepo.files.find(f => f.path === op.from);
-                                if (!file) {
-                                    throw new Error(`File "${op.from}" not found.`);
-                                }
+                                if (!file) throw new Error(`File "${op.from}" not found.`);
                                 activeRepo.files.push({ path: op.to, content: file.content });
                                 messageOutput = `Copied virtual node "${op.from}" to "${op.to}"`;
                                 break;
@@ -2189,52 +2320,60 @@
 
                             case 'RENAME': {
                                 const file = activeRepo.files.find(f => f.path === op.from);
-                                if (!file) {
-                                    throw new Error(`File "${op.from}" not found.`);
-                                }
+                                if (!file) throw new Error(`File "${op.from}" not found.`);
                                 file.path = op.to;
                                 messageOutput = `Renamed virtual node from "${op.from}" to "${op.to}"`;
                                 break;
                             }
 
-                            case 'UPLOAD':
-                                messageOutput = `Simulated upload handler logged for: "${op.path}"`;
-                                break;
-
-                            case 'DOWNLOAD': {
-                                const file = activeRepo.files.find(f => f.path === op.path);
-                                if (!file) {
-                                    throw new Error(`File "${op.path}" not found to download.`);
-                                }
-                                const blob = new Blob([file.content], { type: 'text/plain' });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = op.path.split('/').pop() || 'download.txt';
-                                a.click();
-                                URL.revokeObjectURL(url);
-                                messageOutput = `Triggered download block for: "${op.path}"`;
+                            case 'VAR': {
+                                const val = this.evaluateString(op.value);
+                                this.variables[op.name] = val;
+                                messageOutput = `Variable declared: \${${op.name}} = "${val}"`;
                                 break;
                             }
 
-                            case 'TRIGGER':
-                                messageOutput = `Dispatched custom downstream event trigger: "${op.action}"`;
-                                EventBus.publish(op.action, op);
+                            case 'UPLOAD': {
+                                messageOutput = `Simulated upload handler logged for: "${path}"`;
                                 break;
+                            }
 
-                            case 'WAIT':
+                            case 'DOWNLOAD': {
+                                const contentToDl = VirtualFS.readFile(state.currentRepository, path);
+                                const blob = new Blob([contentToDl], { type: 'text/plain' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = path.split('/').pop() || 'download.txt';
+                                a.click();
+                                URL.revokeObjectURL(url);
+                                messageOutput = `Triggered download block for: "${path}"`;
+                                break;
+                            }
+
+                            case 'TRIGGER': {
+                                messageOutput = `Dispatched custom downstream event trigger: "${action}"`;
+                                EventBus.publish(action, op);
+                                break;
+                            }
+
+                            case 'WAIT': {
                                 messageOutput = `Paused timer for ${op.delay}ms...`;
                                 Logger.log('INFO', messageOutput, 'PIPELINE');
                                 await new Promise(resolve => setTimeout(resolve, op.delay));
                                 messageOutput = `Timer finished, resumed operations automatically.`;
                                 break;
+                            }
                         }
 
+                        op.status = 'Completed';
                         Logger.log('SUCCESS', messageOutput, 'PIPELINE');
                     } catch (e) {
                         stepSuccess = false;
+                        op.status = 'Failed';
                         messageOutput = `Step failed: ${e.message}`;
                         Logger.log('ERROR', messageOutput, 'PIPELINE');
+                        anyFail = true;
                     }
 
                     runLog.push({
@@ -2243,10 +2382,7 @@
                         message: messageOutput
                     });
 
-                    if (!stepSuccess) {
-                        Logger.log('ERROR', 'Pipeline halted to protect repository integrity.', 'PIPELINE');
-                        break;
-                    }
+                    EventBus.publish('queue:updated', this.activeQueue);
                 }
 
                 this.running = false;
@@ -2261,14 +2397,18 @@
 
                 const executionHistory = [...state.executionHistory, historyItem];
                 StateManager.setState({
-                    repositories,
                     executionHistory,
                     executionQueue: []
                 });
 
                 EventBus.publish('queue:finished', runLog);
                 EventBus.publish('queue:status', { running: false });
-                Notification.show('Operational pipeline queue complete.', 'success');
+                
+                if (anyFail) {
+                    Notification.show('Operational pipeline completed with recoverable errors.', 'warning');
+                } else {
+                    Notification.show('Operational pipeline queue complete.', 'success');
+                }
             }
         }
         const ExecutionQueue = new ExecutionQueueService();
@@ -2279,7 +2419,7 @@
             getState: () => StateManager.getState(),
             setState: (u) => StateManager.setState(u),
             executeDirectives: (text) => EventBus.publish('prompt:parse', text)
-        };};
+        };
 
         /**
          * 10. UI ENGINE & EVENT-DRIVEN COMPONENT BINDINGS
@@ -2757,6 +2897,95 @@ TRIGGER: build:test-complete`;
                     backupFileInput.addEventListener('change', () => {
                         const btn = document.getElementById('btn-import-backup');
                         if (btn) btn.click();
+                    });
+                }
+
+                // Extra Quick Actions: Replace Text, Export ZIP, Save Workspace, Load Workspace, Git Status
+                const opReplaceText = document.getElementById('op-replace-text');
+                if (opReplaceText) {
+                    opReplaceText.addEventListener('click', () => {
+                        const state = StateManager.getState();
+                        const activeRepo = state.repositories.find(r => r.id === state.currentRepository);
+                        if (!activeRepo || activeRepo.files.length === 0) {
+                            Notification.show('Active workspace has no file nodes.', 'warning');
+                            return;
+                        }
+                        const optionNodes = activeRepo.files.map(f => `<option value="${f.path}">${f.path}</option>`).join('');
+                        this.showModal('Replace String in File', `
+                            <div class="setting-field-group" style="margin-bottom: 12px;">
+                                <label class="setting-label">Select File node</label>
+                                <select class="setting-select" id="bulk-replace-file-path" style="width: 100%; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px;">${optionNodes}</select>
+                            </div>
+                            <div class="setting-field-group" style="margin-bottom: 12px;">
+                                <label class="setting-label">Target Text</label>
+                                <input type="text" class="setting-input" id="bulk-replace-target" placeholder="Text to find..." style="width: 100%; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px;">
+                            </div>
+                            <div class="setting-field-group" style="margin-bottom: 12px;">
+                                <label class="setting-label">Replacement Text</label>
+                                <input type="text" class="setting-input" id="bulk-replace-replacement" placeholder="New text..." style="width: 100%; padding: 6px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 4px;">
+                            </div>
+                        `, () => {
+                            const path = document.getElementById('bulk-replace-file-path').value;
+                            const target = document.getElementById('bulk-replace-target').value;
+                            const replacement = document.getElementById('bulk-replace-replacement').value;
+                            if (!target) {
+                                Notification.show('Target search string cannot be empty.', 'warning');
+                                return;
+                            }
+                            try {
+                                VirtualFS.replaceText(state.currentRepository, path, target, replacement);
+                                Notification.show(`Replaced occurrences in "${path}".`, 'success');
+                                this.closeModal();
+                            } catch (e) {
+                                Notification.show(e.message, 'error');
+                            }
+                        });
+                    });
+                }
+
+                const opExportZipBtn = document.getElementById('op-export-zip');
+                if (opExportZipBtn) {
+                    opExportZipBtn.addEventListener('click', () => {
+                        this.downloadActiveRepoAsZip();
+                    });
+                }
+
+                const opSaveWorkspaceBtn = document.getElementById('op-save-workspace');
+                if (opSaveWorkspaceBtn) {
+                    opSaveWorkspaceBtn.addEventListener('click', () => {
+                        const exportBtn = document.getElementById('btn-export-backup');
+                        if (exportBtn) exportBtn.click();
+                    });
+                }
+
+                const opLoadWorkspaceBtn = document.getElementById('op-load-workspace');
+                if (opLoadWorkspaceBtn) {
+                    opLoadWorkspaceBtn.addEventListener('click', () => {
+                        const fileInput = document.getElementById('import-backup-file');
+                        if (fileInput) fileInput.click();
+                    });
+                }
+
+                const opGitStatusBtn = document.getElementById('op-git-status');
+                if (opGitStatusBtn) {
+                    opGitStatusBtn.addEventListener('click', () => {
+                        const state = StateManager.getState();
+                        const statusList = RepositoryManager.gitStatus(state.currentRepository);
+                        if (!statusList || statusList.length === 0) {
+                            Notification.show('No nodes in the active repository repository sandbox.', 'warning');
+                            return;
+                        }
+                        const rows = statusList.map(item => `
+                            <div style="display:flex; justify-content:space-between; font-size:0.75rem; border-bottom:1px solid var(--border-color); padding:6px 0; font-family:var(--font-mono);">
+                                <span style="color:var(--text-primary);">${item.path}</span>
+                                <span style="color:var(--color-accent-bright); font-weight:600;">${item.status} (${item.size} bytes)</span>
+                            </div>
+                        `).join('');
+                        this.showModal('Repository Git Status', `
+                            <div style="max-height: 250px; overflow-y: auto;">
+                                ${rows}
+                            </div>
+                        `, () => this.closeModal());
                     });
                 }
 
